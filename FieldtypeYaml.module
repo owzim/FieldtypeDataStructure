@@ -66,13 +66,16 @@ class FieldtypeYaml extends FieldtypeTextarea {
         $f = $this->modules->get('InputfieldRadios');
         $f->attr('name', 'yamlParseAs');
         $f->label = $this->_('Parse as');
-        $f->addOption(FTY::PARSE_AS_WIRE_DATA, $this->_('WireData'));
+        $f->addOption(FTY::PARSE_AS_WIRE_DATA, $this->_('WireData/-Array'));
         $f->addOption(FTY::PARSE_AS_OBJECT, $this->_('Object'));
         $f->addOption(FTY::PARSE_AS_ASSOC, $this->_('Associative Array'));
         $f->attr('value', !isset($field->yamlParseAs) ? FTY::DEFAULT_PARSE_AS : (int) $field->yamlParseAs);
         $f->attr('optionColumns', 1);
         $f->description = $this->_(
-            'If WireData is chosen, the parsed object has full support for things like **$someKey->get(\'title|name\')**');
+            'If **WireData/-Array** is chosen, the parsed array/object has full' .
+            'support for things like **$page->people->implode(\',\', \'name\')** (arrays) ' .
+            'or **$person->get(\'title|name\')** (objects).'
+        );
         $inputfields->prepend($f);
 
         return $inputfields;

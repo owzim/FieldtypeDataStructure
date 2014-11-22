@@ -14,9 +14,9 @@ In the `Details`-Tab you have some options you can choose from:
 
 **Parse as**
 
-Default is `WireArray`, the data can also be parsed as `Object` or `Associative Array`.
+Default is `WireData/-Array`, the data can also be parsed as `Object` or `Associative Array`.
 
-*Associative Array* is the fastest and the default output by the used *Spyc* parser, *WireArray* might be the slowest, but it's also the most feature rich. You can access properties like you are used to with *pages* or *fields*, like `$someObject->get('headline|title')`.
+`Associative Array` is the fastest and the default output by the used *Spyc* parser, `WireData/-Array` might be the slowest (because the entrie array is recursiveley converted), but it's also the most feature rich. You can access properties like you are used to with *pages* or *fields*, like `$page->people->implode(',', 'name')` (arrays) or `$person->get('title|name')` (objects), see code example below.
 
 **Font Family**
 
@@ -42,7 +42,7 @@ Now, in your just created field you can put in some YAML like this:
 
 ```
 
-In your template, or wherever you are accessing the page, you would use it like any other ProcesssWire data (if you set the parse option to either `WireData` or `Object`):
+In your template, or wherever you are accessing the page, you would use it like any other ProcesssWire data (if you set the parse option to either `WireData/-Array` or `Object`):
 
 ```PHP
 $out = '';
@@ -74,6 +74,7 @@ echo $out;
 
 ### Change Log
 
+* **0.2.0** add WireArray feature
 * **0.1.1** move all classes into the `FieldtypeYaml` namespace
 * **0.1.0** initial version
 

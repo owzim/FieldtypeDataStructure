@@ -101,6 +101,41 @@ class FTY {
         }
         return ($hasStrKeys) ? $resultObj : $resultArr;
     }
+    
+    public static function array2wireExt(array $array) {
+        $resultObj = new FTYData;
+        $resultArr = array();
+        $resultWireArr = new FTYArray;
+        $hasIntKeys = false;
+        $hasStrKeys = false;
+        $wireArrAllowed = true;
+        foreach ($array as $key => $value) {
+            if (!$hasIntKeys) {
+                $hasIntKeys = is_int($key);
+            }
+            if (!$hasStrKeys) {
+                $hasStrKeys = is_string($key);
+            }
+            if ($hasIntKeys && $hasStrKeys) {
+                $e = new \Exception(
+                    'Current level has both int and str keys, thus it\'s impossible to keep arr or convert to obj');
+                $e->vars = array('level' => $array);
+                throw $e;
+            }
+            if ($hasStrKeys) {
+                $resultObj->{$key} = is_array($value) ? self::array2wireExt($value) : $value;
+            } else {
+                $result = is_array($value) ? self::array2wireExt($value) : $value;
+                if (is_object($result)) {
+                    $resultWireArr->add($result);
+                } else {
+                    $wireArrAllowed = false;
+                    $resultArr[$key] = $result;
+                }
+            }
+        }
+        return ($hasStrKeys) ? $resultObj : ($wireArrAllowed ? $resultWireArr : $resultArr);
+    }
 
 
     public static function parseYAML($value, $parseAs = self::DEFAULT_PARSE_AS) {
@@ -112,7 +147,7 @@ class FTY {
             case $parseAs === self::PARSE_AS_OBJECT:
                 return self::array2object(Spyc::YAMLLoadString($value));
             case $parseAs === self::PARSE_AS_WIRE_DATA:
-                return self::array2wire(Spyc::YAMLLoadString($value));
+                return self::array2wireExt(Spyc::YAMLLoadString($value));
         }
     }
 }
