@@ -9,10 +9,10 @@
  * @copyright Copyright (c) 2013, neuwaerts GmbH
  * @filesource
  * 
- * modified by owzim to use 'owzim\FieldtypeYaml' namespace
+ * modified by owzim to use 'owzim\FieldtypeObject' namespace
  */
 
-namespace owzim\FieldtypeYaml;
+namespace owzim\FieldtypeObject;
 
 /**
  * Class Autoloader
@@ -22,8 +22,8 @@ namespace owzim\FieldtypeYaml;
  * Can be registered as followed:
  *
  * <code>
- * require_once('/path/to/FieldtypeYaml/owzim/FieldtypeYaml/Autoloader.php');
- * spl_autoload_register('owzim\FieldtypeYaml\Autoloader::autoload');
+ * require_once('/path/to/FieldtypeObject/owzim/FieldtypeObject/Autoloader.php');
+ * spl_autoload_register('owzim\FieldtypeObject\Autoloader::autoload');
  * </code>
  *
  * @see http://www.php-fig.org/psr/0/

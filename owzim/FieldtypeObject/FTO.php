@@ -1,8 +1,8 @@
 <?php
-namespace owzim\FieldtypeYaml;
+namespace owzim\FieldtypeObject;
 
-use \owzim\FieldtypeYaml\Vendor\Spyc;
-class FTY {
+use \owzim\FieldtypeObject\Vendor\Spyc;
+class FTO {
 
     const OUTPUT_AS_ASSOC = 0;
     const OUTPUT_AS_OBJECT = 1;
@@ -83,7 +83,7 @@ class FTY {
      * @return stdClass
      */
     public static function array2wire(array $array) {
-        $resultObj = new FTYData;
+        $resultObj = new FTOData;
         $resultArr = array();
         $hasIntKeys = false;
         $hasStrKeys = false;
@@ -110,9 +110,9 @@ class FTY {
     }
 
     public static function array2wireExt(array $array) {
-        $resultObj = new FTYData;
+        $resultObj = new FTOData;
         $resultArr = array();
-        $resultWireArr = new FTYArray;
+        $resultWireArr = new FTOArray;
         $hasIntKeys = false;
         $hasStrKeys = false;
         $wireArrAllowed = true;

@@ -1,14 +1,14 @@
-# Fieldtype YAML
+# Fieldtype Object
 
 ---
 
 #### for ProcessWire 2.5
 
-Field that stores YAML data and formats it as an object, when requested.
+Field that stores Object data and formats it as an object, when requested.
 
 ## Setup
 
-After installation create a new `field`, let's say called `people` and assign it to a `template`, or just edit an existing text-based `field` and choose `Yaml` for the `type`, save!
+After installation create a new `field`, let's say called `people` and assign it to a `template`, or just edit an existing text-based `field` and choose `Object` for the `type`, save!
 
 In the `Details`-Tab you have some options you can choose from:
 
@@ -20,13 +20,13 @@ Default is `WireData/-Array`, the data can also be parsed as `Object` or `Associ
 
 **Font Family**
 
-The font stack used for the `Textarea`, default is `Consolas, Monaco, Andale Mono, monospace`. Since we write YAML in here, a monospace font makes sense.
+The font stack used for the `Textarea`, default is `Consolas, Monaco, Andale Mono, monospace`. Since we write Object in here, a monospace font makes sense.
 
 ## Usage
 
-Now, in your just created field you can put in some YAML like this:
+Now, in your just created field you can put in some Object like this:
 
-```YAML
+```Object
 - name: Jane Doe
   occupation: Product Manager
   age: 33
@@ -59,28 +59,28 @@ foreach ($page->people as $person) {
 echo $out;
 ```
 
-### More info about YAML:
+### More info about Object:
 
-* [Complete idiot's introduction to YAML](https://github.com/Animosity/CraftIRC/wiki/Complete-idiot%27s-introduction-to-yaml)
+* [Complete idiot's introduction to Object](https://github.com/Animosity/CraftIRC/wiki/Complete-idiot%27s-introduction-to-yaml)
 * [Specification](http://yaml.org/spec/1.0/)
-* [Wikipedia](http://en.wikipedia.org/wiki/YAML)
+* [Wikipedia](http://en.wikipedia.org/wiki/Object)
 
 ### Acknowledgements
 
 * I've used a namespaced version of the Autoloader class from [Template Data Providers](https://github.com/marcostoll/processwire-template-data-providers)
-* The YAML parser is a namespaced version of [Spyc](https://github.com/mustangostang/spyc)
+* The Object parser is a namespaced version of [Spyc](https://github.com/mustangostang/spyc)
 
 
 
 ### Change Log
 
-* **0.3.0** add more input types than just YAML
+* **0.3.0** add more input types than just Object
 * **0.2.5** convert InputfieldTextarea to InputfieldText if only one row is set
 * **0.2.4** implement runtime caching
 * **0.2.3** make default 'toString' output the name label of the field, if WireData/-Array is selected
 * **0.2.2** add unit tests
 * **0.2.1** add additional value checking before converting to object
 * **0.2.0** add WireArray feature
-* **0.1.1** move all classes into the `FieldtypeYaml` namespace
+* **0.1.1** move all classes into the `FieldtypeObject` namespace
 * **0.1.0** initial version
 

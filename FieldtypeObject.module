@@ -1,8 +1,8 @@
 <?php
 
-use \owzim\FieldtypeYaml\FTY;
+use \owzim\FieldtypeObject\FTO;
 
-class FieldtypeYaml extends FieldtypeTextarea {
+class FieldtypeObject extends FieldtypeTextarea {
 
     const DEFAULT_FONT_FAMILY = 'Consolas, Monaco, "Andale Mono", monospace';
 
@@ -10,14 +10,14 @@ class FieldtypeYaml extends FieldtypeTextarea {
 
     public static function getModuleInfo() {
         return array(
-            'title' => 'Fieldtype YAML',
-            'summary' => 'Field that stores YAML data and formats it as an object, when requested.',
+            'title' => 'Fieldtype Object',
+            'summary' => 'Field that stores any structural string-based data and formats it as an object, when requested.',
             'version' => '0.3.0',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(
-                'title' => 'Fieldtype YAML',
-                'classPath' => './tests/FieldtypeYamlTests.php'
+                'title' => 'Fieldtype Object',
+                'classPath' => './tests/FieldtypeObjectTests.php'
             )
         );
     }
@@ -25,8 +25,8 @@ class FieldtypeYaml extends FieldtypeTextarea {
 
     public function init() {
         parent::init();
-        require_once(__DIR__ . '/owzim/FieldtypeYaml/Autoloader.php');
-        spl_autoload_register('owzim\FieldtypeYaml\Autoloader::autoload');
+        require_once(__DIR__ . '/owzim/FieldtypeObject/Autoloader.php');
+        spl_autoload_register('owzim\FieldtypeObject\Autoloader::autoload');
     }
 
 
@@ -49,10 +49,10 @@ class FieldtypeYaml extends FieldtypeTextarea {
      * hook in here to add additional parsers
      */
     public function ___parseValue(Page $page, Field $field, $value) {
-        return FTY::parseInput(
+        return FTO::parseInput(
             $value,
-            !isset($field->inputType) ? FTY::DEFAULT_INPUT_TYPE : (int) $field->inputType,
-            !isset($field->outputAs) ? FTY::DEFAULT_OUTPUT_AS : (int) $field->outputAs,
+            !isset($field->inputType) ? FTO::DEFAULT_INPUT_TYPE : (int) $field->inputType,
+            !isset($field->outputAs) ? FTO::DEFAULT_OUTPUT_AS : (int) $field->outputAs,
             $field->get('label|name')
         );
     }
@@ -111,11 +111,11 @@ class FieldtypeYaml extends FieldtypeTextarea {
      */
     public function ___getInputTypes() {
         return array(
-            FTY::INPUT_TYPE_YAML => $this->_('YAML'),
-            FTY::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated'),
-            FTY::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated'),
-            FTY::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated'),
-            FTY::INPUT_TYPE_JSON => $this->_('JSON'),
+            FTO::INPUT_TYPE_YAML => $this->_('YAML'),
+            FTO::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated'),
+            FTO::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated'),
+            FTO::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated'),
+            FTO::INPUT_TYPE_JSON => $this->_('JSON'),
         );
     }
 
@@ -131,7 +131,7 @@ class FieldtypeYaml extends FieldtypeTextarea {
             $f->addOption($key, $value);
         }
         $f->attr('optionColumns', 1);
-        $value = !isset($field->inputType) ? FTY::DEFAULT_INPUT_TYPE : (int) $field->inputType;
+        $value = !isset($field->inputType) ? FTO::DEFAULT_INPUT_TYPE : (int) $field->inputType;
         $f->attr('value', $value);
         $f->attr('icon', 'sign-in');
         return $f;
@@ -142,10 +142,10 @@ class FieldtypeYaml extends FieldtypeTextarea {
         $f = $this->modules->get('InputfieldSelect');
         $f->attr('name', 'outputAs');
         $f->label = $this->_('Output as');
-        $f->addOption(FTY::OUTPUT_AS_WIRE_DATA, $this->_('WireData/-Array'));
-        $f->addOption(FTY::OUTPUT_AS_OBJECT, $this->_('Object'));
-        $f->addOption(FTY::OUTPUT_AS_ASSOC, $this->_('Associative Array'));
-        $f->attr('value', !isset($field->outputAs) ? FTY::DEFAULT_OUTPUT_AS : (int) $field->outputAs);
+        $f->addOption(FTO::OUTPUT_AS_WIRE_DATA, $this->_('WireData/-Array'));
+        $f->addOption(FTO::OUTPUT_AS_OBJECT, $this->_('Object'));
+        $f->addOption(FTO::OUTPUT_AS_ASSOC, $this->_('Associative Array'));
+        $f->attr('value', !isset($field->outputAs) ? FTO::DEFAULT_OUTPUT_AS : (int) $field->outputAs);
         $f->attr('optionColumns', 1);
         $f->attr('icon', 'sign-out');
         $f->description = $this->_(implode(' ', array(

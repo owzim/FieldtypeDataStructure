@@ -1,5 +1,5 @@
 - name: Jane Doe
-  occupation: Product Manager %page%
+  occupation: Product Manager
   age: 33
   hobbies:
     - running
