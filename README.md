@@ -74,6 +74,8 @@ echo $out;
 
 ### Change Log
 
+* **0.2.2** add unit tests
+* **0.2.1** add additional value checking before converting to object
 * **0.2.0** add WireArray feature
 * **0.1.1** move all classes into the `FieldtypeYaml` namespace
 * **0.1.0** initial version

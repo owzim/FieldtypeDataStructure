@@ -10,9 +10,13 @@ class FieldtypeYaml extends FieldtypeTextarea {
         return array(
             'title' => 'Fieldtype YAML',
             'summary' => 'Field that stores YAML data and formats it as an object, when requested.',
-            'version' => '0.1.1',
+            'version' => '0.2.2',
             'author' => 'owzim',
             'icon' => 'code',
+            'tests' => array(
+                'title' => 'Fieldtype YAML',
+                'classPath' => './tests/FieldtypeYamlTests.php'
+            )
         );
     }
 
