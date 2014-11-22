@@ -2,9 +2,12 @@
 namespace owzim\FieldtypeYaml;
 
 class FTYArray extends \WireArray {
-
+    
+    public $toStringString = '';
+    
     public function __toString() {
-        return '';
+        $c = count($this);
+        return "$this->toStringString ($c)";
     }
 
     public function isValidItem($item) {

@@ -74,6 +74,7 @@ echo $out;
 
 ### Change Log
 
+* **0.2.3** make default 'toString' output the name label of the field, if WireData/-Array is selected
 * **0.2.2** add unit tests
 * **0.2.1** add additional value checking before converting to object
 * **0.2.0** add WireArray feature

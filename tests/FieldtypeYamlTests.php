@@ -23,9 +23,10 @@ class FieldtypeYamlTests extends \TestFest\TestFestSuite {
     function caseDataTypes() {
 
         $people = $this->getSrc('people.yaml');
-        $yamlPeopleWire = FTY::parseYAML($people, FTY::PARSE_AS_WIRE_DATA);
+        $yamlPeopleWire = FTY::parseYAML($people, FTY::PARSE_AS_WIRE_DATA, 'people');
         $this->assertInstanceOf($yamlPeopleWire, self::T('FTYArray'));
         $this->assertInstanceOf($yamlPeopleWire[0], self::T('FTYData'));
+        $this->assertTrue($yamlPeopleWire == 'people');
 
         $yamlPeopleAssoc = FTY::parseYAML($people, FTY::PARSE_AS_ASSOC);
         $this->assertArray($yamlPeopleAssoc);
@@ -36,7 +37,7 @@ class FieldtypeYamlTests extends \TestFest\TestFestSuite {
         $this->assertObject($yamlPeopleObject[0]);
 
         $people = $this->getSrc('faulty-people.yaml');
-        $yamlPeopleWire = FTY::parseYAML($people, FTY::PARSE_AS_WIRE_DATA);
+        $yamlPeopleWire = FTY::parseYAML($people, FTY::PARSE_AS_WIRE_DATA, 'people');
         $this->assertArray($yamlPeopleWire);
     }
 }

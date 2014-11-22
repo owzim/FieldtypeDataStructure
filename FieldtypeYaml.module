@@ -10,7 +10,7 @@ class FieldtypeYaml extends FieldtypeTextarea {
         return array(
             'title' => 'Fieldtype YAML',
             'summary' => 'Field that stores YAML data and formats it as an object, when requested.',
-            'version' => '0.2.2',
+            'version' => '0.2.3',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(
@@ -32,7 +32,7 @@ class FieldtypeYaml extends FieldtypeTextarea {
         $value = parent::___formatValue($page, $field, $value);
 
         // $wire = $this->useWireArray ? true : false;
-        $value = FTY::parseYAML($value, $field->yamlParseAs);
+        $value = FTY::parseYAML($value, $field->yamlParseAs, $field->get('label|name'));
         return $value;
     }
 

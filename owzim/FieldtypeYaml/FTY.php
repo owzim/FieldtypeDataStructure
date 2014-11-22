@@ -138,7 +138,7 @@ class FTY {
     }
 
 
-    public static function parseYAML($value, $parseAs = self::DEFAULT_PARSE_AS) {
+    public static function parseYAML($value, $parseAs = self::DEFAULT_PARSE_AS, $toStringString = '') {
 
         if (!$value) return $value;
 
@@ -155,7 +155,11 @@ class FTY {
             case $parseAs === self::PARSE_AS_WIRE_DATA:
                 $yaml = Spyc::YAMLLoadString($value);
                 if(!is_array($yaml)) return $yaml;
-                return self::array2wireExt($yaml);
+                $wire = self::array2wireExt($yaml);
+                if (!is_array($wire)) {
+                    $wire->toStringString = $toStringString;
+                }                
+                return $wire;
         }
     }
 }
