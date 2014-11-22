@@ -12,7 +12,7 @@ class FieldtypeYaml extends FieldtypeTextarea {
         return array(
             'title' => 'Fieldtype YAML',
             'summary' => 'Field that stores YAML data and formats it as an object, when requested.',
-            'version' => '0.2.5',
+            'version' => '0.3.0',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(
@@ -45,14 +45,22 @@ class FieldtypeYaml extends FieldtypeTextarea {
         }
     }
 
+    /**
+     * hook in here to add additional parsers
+     */
     public function ___parseValue(Page $page, Field $field, $value) {
-        return FTY::parseYAML($value, $field->yamlParseAs, $field->get('label|name'));
+        return FTY::parseInput(
+            $value,
+            !isset($field->inputType) ? FTY::DEFAULT_INPUT_TYPE : (int) $field->inputType,
+            !isset($field->outputAs) ? FTY::DEFAULT_OUTPUT_AS : (int) $field->outputAs,
+            $field->get('label|name')
+        );
     }
 
 
     public function getInputfield(Page $page, Field $field) {
 
-        $fontFamily = trim($field->fontFamily);
+        $fontFamily = trim(!isset($field->fontFamily) ? self::DEFAULT_FONT_FAMILY : $field->fontFamily);
         $process = $this->wire('page')->process;
 
         // convert to InputfieldText, if only one row it set but only if not on
@@ -75,37 +83,97 @@ class FieldtypeYaml extends FieldtypeTextarea {
 
     public function ___getConfigInputfields(Field $field) {
 
-        $parentInputfields = parent::___getConfigInputfields($field);
         $inputfields = new InputfieldWrapper();
 
-        foreach ($parentInputfields as $inputfield) {
+        $inputfields->append($this->getConfigInputfieldInputType($field));
+        $inputfields->append($this->getConfigInputfieldOutputAs($field));
+        $inputfields->append($this->getConfigInputfieldFontFamily($field));
+        $inputfields->append($this->getConfigInputfieldInputfieldClass($field));
+
+        return $inputfields;
+    }
+
+    public function ___getConfigInputfieldInputfieldClass(Field $field) {
+        $inputfields = parent::___getConfigInputfields($field);
+        foreach ($inputfields as $inputfield) {
             if ($inputfield->name == 'inputfieldClass') {
-                $inputfields->append($inputfield);
+                $inputfield->attr('icon', 'list-alt');
+                return $inputfield;
             }
         }
+    }
+
+    /**
+     * get the possible input types
+     * hook in here to add more types
+     * 
+     * @return array
+     */
+    public function ___getInputTypes() {
+        return array(
+            FTY::INPUT_TYPE_YAML => $this->_('YAML'),
+            FTY::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated'),
+            FTY::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated'),
+            FTY::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated'),
+            FTY::INPUT_TYPE_JSON => $this->_('JSON'),
+        );
+    }
+
+    public function ___getConfigInputfieldInputType(Field $field) {
+
+        $f = $this->modules->get('InputfieldSelect');
+        $f->attr('name', 'inputType');
+        $f->label = $this->_('Input type');
+
+        $inputTypes = $this->getInputTypes();
+
+        foreach ($inputTypes as $key => $value) {
+            $f->addOption($key, $value);
+        }
+        $f->attr('optionColumns', 1);
+        $value = !isset($field->inputType) ? FTY::DEFAULT_INPUT_TYPE : (int) $field->inputType;
+        $f->attr('value', $value);
+        $f->attr('icon', 'sign-in');
+        return $f;
+    }
+
+    public function ___getConfigInputfieldOutputAs(Field $field) {
+
+        $f = $this->modules->get('InputfieldSelect');
+        $f->attr('name', 'outputAs');
+        $f->label = $this->_('Output as');
+        $f->addOption(FTY::OUTPUT_AS_WIRE_DATA, $this->_('WireData/-Array'));
+        $f->addOption(FTY::OUTPUT_AS_OBJECT, $this->_('Object'));
+        $f->addOption(FTY::OUTPUT_AS_ASSOC, $this->_('Associative Array'));
+        $f->attr('value', !isset($field->outputAs) ? FTY::DEFAULT_OUTPUT_AS : (int) $field->outputAs);
+        $f->attr('optionColumns', 1);
+        $f->attr('icon', 'sign-out');
+        $f->description = $this->_(implode(' ', array(
+            'If **WireData/-Array** is selected, the parsed array/object has full',
+            'support for things like **$page->people->implode(\',\', \'name\')** (arrays)',
+            'or **$person->get(\'title|name\')** (objects).',
+            '**WireArray** will fall back to regular array, it its children',
+            'are not of type **object/stdClass** or **WireData**.',
+        )));
+        return $f;
+    }
+
+    public function ___getConfigInputfieldFontFamily(Field $field) {
+
+        $fontFamily =
+            trim(!isset($field->fontFamily)
+            ? self::DEFAULT_FONT_FAMILY
+            : $field->fontFamily);
 
         $f = $this->modules->get('InputfieldText');
         $f->attr('name', 'fontFamily');
         $f->label = $this->_('Font Family');
-        $f->attr('value', !isset($field->fontFamily) ? self::DEFAULT_FONT_FAMILY : $field->fontFamily);
-        $inputfields->prepend($f);
-
-        $f = $this->modules->get('InputfieldRadios');
-        $f->attr('name', 'yamlParseAs');
-        $f->label = $this->_('Parse as');
-        $f->addOption(FTY::PARSE_AS_WIRE_DATA, $this->_('WireData/-Array'));
-        $f->addOption(FTY::PARSE_AS_OBJECT, $this->_('Object'));
-        $f->addOption(FTY::PARSE_AS_ASSOC, $this->_('Associative Array'));
-        $f->attr('value', !isset($field->yamlParseAs) ? FTY::DEFAULT_PARSE_AS : (int) $field->yamlParseAs);
-        $f->attr('optionColumns', 1);
-        $f->description = $this->_(
-            'If **WireData/-Array** is chosen, the parsed array/object has full' .
-            'support for things like **$page->people->implode(\',\', \'name\')** (arrays) ' .
-            'or **$person->get(\'title|name\')** (objects).'
-        );
-        $inputfields->prepend($f);
-
-        return $inputfields;
+        $f->notes = $this->_('Preview after save');
+        $f->attr('value', $fontFamily);
+        $f->attr('icon', 'font');
+        if (!empty($fontFamily)) {
+            $f->attr('style', "font-family: {$fontFamily}");
+        }
+        return $f;
     }
 }
-

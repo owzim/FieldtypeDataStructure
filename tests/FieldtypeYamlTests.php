@@ -23,21 +23,41 @@ class FieldtypeYamlTests extends \TestFest\TestFestSuite {
     function caseDataTypes() {
 
         $people = $this->getSrc('people.yaml');
-        $yamlPeopleWire = FTY::parseYAML($people, FTY::PARSE_AS_WIRE_DATA, 'people');
+        $yamlPeopleWire = FTY::parseInput($people, FTY::INPUT_TYPE_YAML, FTY::OUTPUT_AS_WIRE_DATA, 'People');
         $this->assertInstanceOf($yamlPeopleWire, self::T('FTYArray'));
         $this->assertInstanceOf($yamlPeopleWire[0], self::T('FTYData'));
-        $this->assertTrue($yamlPeopleWire == 'people');
+        $this->assertSame((string) $yamlPeopleWire, 'People (2)');
 
-        $yamlPeopleAssoc = FTY::parseYAML($people, FTY::PARSE_AS_ASSOC);
+        $yamlPeopleAssoc = FTY::parseInput($people, FTY::INPUT_TYPE_YAML, FTY::OUTPUT_AS_ASSOC);
         $this->assertArray($yamlPeopleAssoc);
         $this->assertArray($yamlPeopleAssoc[0]);
 
-        $yamlPeopleObject = FTY::parseYAML($people, FTY::PARSE_AS_OBJECT);
+        $yamlPeopleObject = FTY::parseInput($people, FTY::INPUT_TYPE_YAML, FTY::OUTPUT_AS_OBJECT);
         $this->assertArray($yamlPeopleObject);
         $this->assertObject($yamlPeopleObject[0]);
 
         $people = $this->getSrc('faulty-people.yaml');
-        $yamlPeopleWire = FTY::parseYAML($people, FTY::PARSE_AS_WIRE_DATA, 'people');
+        $yamlPeopleWire = FTY::parseInput($people, FTY::INPUT_TYPE_YAML, FTY::OUTPUT_AS_WIRE_DATA, 'people');
         $this->assertArray($yamlPeopleWire);
+        
+        $matrix = $this->getSrc('matrix.txt');
+        $matrixWire = FTY::parseInput($matrix, FTY::INPUT_TYPE_MATRIX, FTY::OUTPUT_AS_WIRE_DATA, 'people');
+        $this->assertArray($matrixWire);
+        $this->assertIdentical(count($matrixWire), 4);
+        $this->assertIdentical(count($matrixWire[0]), 4);
+        ChromePhp::log('$matrixWire', $matrixWire);
+        
+        $comma = $this->getSrc('comma-separated.txt');
+        $commaWire = FTY::parseInput($comma, FTY::INPUT_TYPE_COMMA_SEPARATED, FTY::OUTPUT_AS_WIRE_DATA, 'people');
+        $this->assertArray($commaWire);
+        $this->assertIdentical(count($commaWire), 4);
+        ChromePhp::log('$commaWire', $commaWire);
+        
+        $line = $this->getSrc('line-separated.txt');
+        $lineWire = FTY::parseInput($line, FTY::INPUT_TYPE_LINE_SEPARATED, FTY::OUTPUT_AS_WIRE_DATA, 'people');
+        $this->assertArray($lineWire);
+        $this->assertIdentical(count($lineWire), 5);
+        ChromePhp::log('$lineWire', $lineWire);
+
     }
 }

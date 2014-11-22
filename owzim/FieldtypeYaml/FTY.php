@@ -4,10 +4,17 @@ namespace owzim\FieldtypeYaml;
 use \owzim\FieldtypeYaml\Vendor\Spyc;
 class FTY {
 
-    const PARSE_AS_ASSOC = 0;
-    const PARSE_AS_OBJECT = 1;
-    const PARSE_AS_WIRE_DATA = 2;
-    const DEFAULT_PARSE_AS = 2;
+    const OUTPUT_AS_ASSOC = 0;
+    const OUTPUT_AS_OBJECT = 1;
+    const OUTPUT_AS_WIRE_DATA = 2;
+    const DEFAULT_OUTPUT_AS = 2;
+    
+    const INPUT_TYPE_YAML = 0;
+    const INPUT_TYPE_MATRIX = 1;
+    const INPUT_TYPE_COMMA_SEPARATED = 2;
+    const INPUT_TYPE_LINE_SEPARATED = 3;
+    const INPUT_TYPE_JSON = 4;
+    const DEFAULT_INPUT_TYPE = 0;
 
     public static function isArray($array) {
         if (!is_array($array)) return false;
@@ -123,10 +130,10 @@ class FTY {
                 throw $e;
             }
             if ($hasStrKeys) {
-                $resultObj->{$key} = is_array($value) ? self::array2wireExt($value) : $value;
+                $resultObj->{$key} = is_array($value) || is_object($value) ? self::array2wireExt($value) : $value;
             } else {
-                $result = is_array($value) ? self::array2wireExt($value) : $value;
-                if (is_object($result)) {
+                $result = is_array($value) || is_object($value) ? self::array2wireExt($value) : $value;
+                if ($wireArrAllowed && is_object($result)) {
                     $resultWireArr->add($result);
                 } else {
                     $wireArrAllowed = false;
@@ -137,29 +144,90 @@ class FTY {
         return ($hasStrKeys) ? $resultObj : ($wireArrAllowed ? $resultWireArr : $resultArr);
     }
 
+    
+    public static function parseInput($string, $inputType, $outputAs, $toStringString = '') {
 
-    public static function parseYAML($value, $parseAs = self::DEFAULT_PARSE_AS, $toStringString = '') {
+        switch (true) {
+            case $inputType === self::INPUT_TYPE_YAML:
+                $string = Spyc::YAMLLoadString($string);
+                break;
+            case $inputType === self::INPUT_TYPE_MATRIX:
+                $string = self::parseMatrix($string);
+                break;
+            case $inputType === self::INPUT_TYPE_COMMA_SEPARATED:
+                $string = self::parseCols($string);
+                break;
+            case $inputType === self::INPUT_TYPE_LINE_SEPARATED:
+                $string = self::parseLines($string);
+                break;
+            case $inputType === self::INPUT_TYPE_JSON:
+                $string = json_decode($string);
+                break;
+            default:
+                return $string;
+                break;
+        }
+        
+        return self::convert($string, $outputAs, $toStringString);
+    }
+    
+    
+    
+    public static function convert($value, $outputAs = self::DEFAULT_OUTPUT_AS, $toStringString = '') {
 
         if (!$value) return $value;
 
         switch (true) {
 
-            case $parseAs === self::PARSE_AS_ASSOC:
-                return Spyc::YAMLLoadString($value);
+            case $outputAs === self::OUTPUT_AS_ASSOC:
+                return $value;
 
-            case $parseAs === self::PARSE_AS_OBJECT:
-                $yaml = Spyc::YAMLLoadString($value);
-                if(!is_array($yaml)) return $yaml;
-                return self::array2object($yaml);
+            case $outputAs === self::OUTPUT_AS_OBJECT:
+                if(!is_array($value)) return $value;
+                return self::array2object($value);
 
-            case $parseAs === self::PARSE_AS_WIRE_DATA:
-                $yaml = Spyc::YAMLLoadString($value);
-                if(!is_array($yaml)) return $yaml;
-                $wire = self::array2wireExt($yaml);
+            case $outputAs === self::OUTPUT_AS_WIRE_DATA:
+                if(!is_array($value)) return $value;
+                $wire = self::array2wireExt($value);
                 if (!is_array($wire)) {
                     $wire->toStringString = $toStringString;
                 }                
                 return $wire;
         }
+    }
+    
+
+    public static function parseLines($string, $separator = "/\n/") {
+        $arr = preg_split($separator, $string);
+        $rtn = array();
+        foreach ($arr as $key => $value) {
+            if ($trimmed = trim($value)) {
+                $rtn[] = $trimmed;
+            }
+        }
+        return $rtn;
+    }
+    
+    public static function parseCols($string, $separator = ',') {
+        $arr = explode($separator, $string);
+        $rtn = array();
+        foreach ($arr as $key => $value) {
+            if ($trimmed = trim($value)) {
+                $rtn[] = $trimmed;
+            }
+        }
+        return $rtn;
+    }
+    
+    public static function parseMatrix($string) {
+        $lines = self::parseLines($string);
+        $rtn = array();
+        foreach ($lines as $line) {
+            $cols = self::parseCols($line);
+            if (count($cols) > 0) {
+                $rtn[] = $cols;
+            }
+        }
+        return $rtn;
     }
 }
