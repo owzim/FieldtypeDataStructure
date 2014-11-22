@@ -6,11 +6,13 @@ class FieldtypeYaml extends FieldtypeTextarea {
 
     const DEFAULT_FONT_FAMILY = 'Consolas, Monaco, "Andale Mono", monospace';
 
+    protected static $parseCache = array();
+
     public static function getModuleInfo() {
         return array(
             'title' => 'Fieldtype YAML',
             'summary' => 'Field that stores YAML data and formats it as an object, when requested.',
-            'version' => '0.2.3',
+            'version' => '0.2.4',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(
@@ -29,12 +31,24 @@ class FieldtypeYaml extends FieldtypeTextarea {
 
 
     public function ___formatValue(Page $page, Field $field, $value) {
-        $value = parent::___formatValue($page, $field, $value);
-
-        // $wire = $this->useWireArray ? true : false;
-        $value = FTY::parseYAML($value, $field->yamlParseAs, $field->get('label|name'));
-        return $value;
+        return $this->getCachedValue($page, $field, $value);
     }
+
+    public function getCachedValue(Page $page, Field $field, $value) {
+
+        $cacheKey = "{$page->id}_{$field->id}";
+
+        if (!isset(self::$parseCache[$cacheKey])) {
+            return self::$parseCache[$cacheKey] = $this->parseValue($page, $field, $value);
+        } else {
+            return self::$parseCache[$cacheKey];
+        }
+    }
+
+    public function ___parseValue(Page $page, Field $field, $value) {
+        return FTY::parseYAML($value, $field->yamlParseAs, $field->get('label|name'));
+    }
+
 
     public function getInputfield(Page $page, Field $field) {
 
