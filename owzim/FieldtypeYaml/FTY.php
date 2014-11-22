@@ -101,7 +101,7 @@ class FTY {
         }
         return ($hasStrKeys) ? $resultObj : $resultArr;
     }
-    
+
     public static function array2wireExt(array $array) {
         $resultObj = new FTYData;
         $resultArr = array();
@@ -139,15 +139,23 @@ class FTY {
 
 
     public static function parseYAML($value, $parseAs = self::DEFAULT_PARSE_AS) {
+
         if (!$value) return $value;
 
         switch (true) {
+
             case $parseAs === self::PARSE_AS_ASSOC:
                 return Spyc::YAMLLoadString($value);
+
             case $parseAs === self::PARSE_AS_OBJECT:
-                return self::array2object(Spyc::YAMLLoadString($value));
+                $yaml = Spyc::YAMLLoadString($value);
+                if(!is_array($yaml)) return $yaml;
+                return self::array2object($yaml);
+
             case $parseAs === self::PARSE_AS_WIRE_DATA:
-                return self::array2wireExt(Spyc::YAMLLoadString($value));
+                $yaml = Spyc::YAMLLoadString($value);
+                if(!is_array($yaml)) return $yaml;
+                return self::array2wireExt($yaml);
         }
     }
 }
