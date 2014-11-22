@@ -12,7 +12,7 @@ class FieldtypeYaml extends FieldtypeTextarea {
         return array(
             'title' => 'Fieldtype YAML',
             'summary' => 'Field that stores YAML data and formats it as an object, when requested.',
-            'version' => '0.2.4',
+            'version' => '0.2.5',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(
@@ -52,14 +52,23 @@ class FieldtypeYaml extends FieldtypeTextarea {
 
     public function getInputfield(Page $page, Field $field) {
 
-        $inputfield = parent::getInputfield($page, $field);
-        $inputfield->class = $this->className();
         $fontFamily = trim($field->fontFamily);
+        $process = $this->wire('page')->process;
+
+        // convert to InputfieldText, if only one row it set but only if not on
+        // edit field page, because it would cause the edit field page to show
+        // only options for InputfieldText, not sure why
+        if ($process !== 'ProcessField' && $field->rows == 1) {
+            $inputfield = $this->modules->get('InputfieldText');
+        } else {
+            $inputfield = parent::getInputfield($page, $field);
+        }
 
         if (!empty($fontFamily)) {
             $inputfield->attr('style', "font-family: {$fontFamily}");
         }
 
+        $inputfield->class = $this->className();
         return $inputfield;
     }
 

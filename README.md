@@ -74,6 +74,7 @@ echo $out;
 
 ### Change Log
 
+* **0.2.5** convert InputfieldTextarea to InputfieldText if only one row is set
 * **0.2.4** implement runtime caching
 * **0.2.3** make default 'toString' output the name label of the field, if WireData/-Array is selected
 * **0.2.2** add unit tests
