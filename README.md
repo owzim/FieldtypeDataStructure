@@ -16,7 +16,7 @@ In the `Details`-Tab you have some options you can choose from:
 
 Default is `WireData/-Array`, the data can also be parsed as `Object` or `Associative Array`.
 
-`Associative Array` is the fastest and the default output by the used *Spyc* parser, `WireData/-Array` might be the slowest (because the entrie array is recursiveley converted), but it's also the most feature rich. You can access properties like you are used to with *pages* or *fields*, like `$page->people->implode(',', 'name')` (arrays) or `$person->get('title|name')` (objects), see code example below.
+`Associative Array` is the fastest and the default output by the used *Spyc* parser, `WireData/-Array` might be the slowest (because the entire array is recursiveley converted), but it's also the most feature rich. You can access properties like you are used to with *pages* or *fields*, like `$page->people->implode(',', 'name')` (arrays) or `$person->get('title|name')` (objects), see code example below.
 
 **Font Family**
 
