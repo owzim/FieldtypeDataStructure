@@ -106,16 +106,16 @@ class FieldtypeObject extends FieldtypeTextarea {
     /**
      * get the possible input types
      * hook in here to add more types
-     * 
+     *
      * @return array
      */
     public function ___getInputTypes() {
         return array(
-            FTO::INPUT_TYPE_YAML => $this->_('YAML'),
-            FTO::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated'),
-            FTO::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated'),
-            FTO::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated'),
-            FTO::INPUT_TYPE_JSON => $this->_('JSON'),
+            FTO::INPUT_TYPE_YAML => $this->_('YAML (Object)'),
+            FTO::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated (Array)'),
+            FTO::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated (Array)'),
+            FTO::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated (Array)'),
+            FTO::INPUT_TYPE_JSON => $this->_('JSON (Object)'),
         );
     }
 
@@ -141,7 +141,7 @@ class FieldtypeObject extends FieldtypeTextarea {
 
         $f = $this->modules->get('InputfieldSelect');
         $f->attr('name', 'outputAs');
-        $f->label = $this->_('Output as');
+        $f->label = $this->_('Output object as');
         $f->addOption(FTO::OUTPUT_AS_WIRE_DATA, $this->_('WireData/-Array'));
         $f->addOption(FTO::OUTPUT_AS_OBJECT, $this->_('Object'));
         $f->addOption(FTO::OUTPUT_AS_ASSOC, $this->_('Associative Array'));
@@ -155,6 +155,13 @@ class FieldtypeObject extends FieldtypeTextarea {
             '**WireArray** will fall back to regular array, it its children',
             'are not of type **object/stdClass** or **WireData**.',
         )));
+
+        $f->showIf = $this->showIfList('inputType!=', array(
+            FTO::INPUT_TYPE_MATRIX,
+            FTO::INPUT_TYPE_COMMA_SEPARATED,
+            FTO::INPUT_TYPE_LINE_SEPARATED,
+        ));
+
         return $f;
     }
 
@@ -175,5 +182,9 @@ class FieldtypeObject extends FieldtypeTextarea {
             $f->attr('style', "font-family: {$fontFamily}");
         }
         return $f;
+    }
+
+    public function showIfList($condition, $items) {
+        return $condition . implode(', ' . $condition, $items);
     }
 }
