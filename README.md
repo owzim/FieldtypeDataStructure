@@ -139,6 +139,7 @@ echo $out;
 
 ### Change Log
 
+* **0.4.4** add more unit tests on actual fiels/tempaltes/pages
 * **0.4.3** add uncache method
 * **0.4.2** implement configurable 'delimiter', move parse parameters to options array
 * **0.4.1** make 'delimiter' configurable
