@@ -14,6 +14,7 @@ class FTO {
     const INPUT_TYPE_COMMA_SEPARATED = 2;
     const INPUT_TYPE_LINE_SEPARATED = 3;
     const INPUT_TYPE_JSON = 4;
+    const INPUT_TYPE_CSV = 5;
     const DEFAULT_INPUT_TYPE = 0;
 
     public static function isArray($array) {
