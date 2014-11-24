@@ -21,6 +21,7 @@ class FTDS {
     const DEFAULT_INPUT_TYPE = 0;
 
     const DEFAULT_DELIMITER = ',';
+    const DEFAULT_NEW_LINE_DELIMITER = "\n";
 
 
     /**
@@ -210,10 +211,10 @@ class FTDS {
                 $string = self::parseMatrixObject($string, $options->delimiter);
                 break;
             case $options->inputType === self::INPUT_TYPE_DELIMITER_SEPARATED:
-                $string = self::parseCols($string, $options->delimiter);
+                $string = self::explodeAndTrim($string, $options->delimiter);
                 break;
             case $options->inputType === self::INPUT_TYPE_LINE_SEPARATED:
-                $string = self::parseLines($string);
+                $string = self::explodeAndTrim($string, self::DEFAULT_NEW_LINE_DELIMITER);
                 break;
             case $options->inputType === self::INPUT_TYPE_JSON:
                 $string = json_decode($string);
@@ -265,33 +266,13 @@ class FTDS {
 
 
     /**
-     * split a string into an array
+     * split a string into an array and trim each item
      *
      * @param  string $string
      * @param  string $delimiter
      * @return array
      */
-    public static function parseLines($string, $delimiter = "/\n/") {
-
-        $arr = preg_split($delimiter, $string);
-        $rtn = array();
-        foreach ($arr as $key => $value) {
-            if ($trimmed = trim($value)) {
-                $rtn[] = $trimmed;
-            }
-        }
-        return $rtn;
-    }
-
-
-    /**
-     * split a string into an array
-     *
-     * @param  string $string
-     * @param  string $delimiter
-     * @return array
-     */
-    public static function parseCols($string, $delimiter = self::DEFAULT_DELIMITER) {
+    public static function explodeAndTrim($string, $delimiter = self::DEFAULT_DELIMITER) {
 
         $arr = explode($delimiter, $string);
         $rtn = array();
@@ -314,14 +295,14 @@ class FTDS {
      */
     public static function parseMatrix(
         $string,
-        $colDelimiter = self::DEFAULT_DELIMITER,
-        $lineDelimiter = "/\n/"
+        $colDelimiter,
+        $lineDelimiter = self::DEFAULT_NEW_LINE_DELIMITER
     ) {
 
-        $lines = self::parseLines($string, $lineDelimiter);
+        $lines = self::explodeAndTrim($string, $lineDelimiter);
         $rtn = array();
         foreach ($lines as $line) {
-            $cols = self::parseCols($line, $colDelimiter);
+            $cols = self::explodeAndTrim($line, $colDelimiter);
             if (count($cols) > 0) {
                 $rtn[] = $cols;
             }
@@ -340,8 +321,8 @@ class FTDS {
      */
     public static function parseMatrixObject(
         $string,
-        $colDelimiter = self::DEFAULT_DELIMITER,
-        $lineDelimiter = "/\n/"
+        $colDelimiter,
+        $lineDelimiter = self::DEFAULT_NEW_LINE_DELIMITER
     ) {
 
         $matrix = self::parseMatrix($string, $colDelimiter, $lineDelimiter);
