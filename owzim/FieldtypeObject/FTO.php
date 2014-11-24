@@ -8,13 +8,13 @@ class FTO {
     const OUTPUT_AS_OBJECT = 1;
     const OUTPUT_AS_WIRE_DATA = 2;
     const DEFAULT_OUTPUT_AS = 2;
-    
+
     const INPUT_TYPE_YAML = 0;
     const INPUT_TYPE_MATRIX = 1;
     const INPUT_TYPE_COMMA_SEPARATED = 2;
     const INPUT_TYPE_LINE_SEPARATED = 3;
     const INPUT_TYPE_JSON = 4;
-    const INPUT_TYPE_CSV = 5;
+    const INPUT_TYPE_MATRIX_OBJECT = 5;
     const DEFAULT_INPUT_TYPE = 0;
 
     public static function isArray($array) {
@@ -145,7 +145,7 @@ class FTO {
         return ($hasStrKeys) ? $resultObj : ($wireArrAllowed ? $resultWireArr : $resultArr);
     }
 
-    
+
     public static function parseInput($string, $inputType, $outputAs, $toStringString = '') {
 
         switch (true) {
@@ -154,6 +154,9 @@ class FTO {
                 break;
             case $inputType === self::INPUT_TYPE_MATRIX:
                 $string = self::parseMatrix($string);
+                break;
+            case $inputType === self::INPUT_TYPE_MATRIX_OBJECT:
+                $string = self::parseMatrixObject($string);
                 break;
             case $inputType === self::INPUT_TYPE_COMMA_SEPARATED:
                 $string = self::parseCols($string);
@@ -168,12 +171,12 @@ class FTO {
                 return $string;
                 break;
         }
-        
+
         return self::convert($string, $outputAs, $toStringString);
     }
-    
-    
-    
+
+
+
     public static function convert($value, $outputAs = self::DEFAULT_OUTPUT_AS, $toStringString = '') {
 
         if (!$value) return $value;
@@ -192,11 +195,11 @@ class FTO {
                 $wire = self::array2wireExt($value);
                 if (!is_array($wire)) {
                     $wire->toStringString = $toStringString;
-                }                
+                }
                 return $wire;
         }
     }
-    
+
 
     public static function parseLines($string, $separator = "/\n/") {
         $arr = preg_split($separator, $string);
@@ -208,7 +211,7 @@ class FTO {
         }
         return $rtn;
     }
-    
+
     public static function parseCols($string, $separator = ',') {
         $arr = explode($separator, $string);
         $rtn = array();
@@ -219,7 +222,7 @@ class FTO {
         }
         return $rtn;
     }
-    
+
     public static function parseMatrix($string) {
         $lines = self::parseLines($string);
         $rtn = array();
@@ -228,6 +231,25 @@ class FTO {
             if (count($cols) > 0) {
                 $rtn[] = $cols;
             }
+        }
+        return $rtn;
+    }
+
+    public static function parseMatrixObject($string) {
+        $matrix = self::parseMatrix($string);
+
+        $keys = array_shift($matrix);
+
+        $rtn = array();
+
+        foreach ($matrix as $line) {
+            $lineAssoc = array();
+            $c = 0;
+            foreach ($keys as $key) {
+                $lineAssoc[$key] = $line[$c];
+                $c++;
+            }
+            $rtn[] = $lineAssoc;
         }
         return $rtn;
     }

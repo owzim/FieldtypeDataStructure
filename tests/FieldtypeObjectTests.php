@@ -21,40 +21,66 @@ class FieldtypeObjectTests extends \TestFest\TestFestSuite {
     }
 
     function caseDataTypes() {
-
-        $people = $this->getSrc('people.yaml');
-        $yamlPeopleWire = FTO::parseInput($people, FTO::INPUT_TYPE_YAML, FTO::OUTPUT_AS_WIRE_DATA, 'People');
-        $this->assertInstanceOf($yamlPeopleWire, self::T('FTOArray'));
-        $this->assertInstanceOf($yamlPeopleWire[0], self::T('FTOData'));
-        $this->assertSame((string) $yamlPeopleWire, 'People (2)');
-
-        $yamlPeopleAssoc = FTO::parseInput($people, FTO::INPUT_TYPE_YAML, FTO::OUTPUT_AS_ASSOC);
-        $this->assertArray($yamlPeopleAssoc);
-        $this->assertArray($yamlPeopleAssoc[0]);
-
-        $yamlPeopleObject = FTO::parseInput($people, FTO::INPUT_TYPE_YAML, FTO::OUTPUT_AS_OBJECT);
-        $this->assertArray($yamlPeopleObject);
-        $this->assertObject($yamlPeopleObject[0]);
-
-        $people = $this->getSrc('faulty-people.yaml');
-        $yamlPeopleWire = FTO::parseInput($people, FTO::INPUT_TYPE_YAML, FTO::OUTPUT_AS_WIRE_DATA, 'people');
-        $this->assertArray($yamlPeopleWire);
         
-        $matrix = $this->getSrc('matrix.txt');
-        $matrixWire = FTO::parseInput($matrix, FTO::INPUT_TYPE_MATRIX, FTO::OUTPUT_AS_WIRE_DATA, 'people');
-        $this->assertArray($matrixWire);
-        $this->assertIdentical(count($matrixWire), 4);
-        $this->assertIdentical(count($matrixWire[0]), 4);
+        $this->newTest('YAML WireArray');
         
-        $comma = $this->getSrc('comma-separated.txt');
-        $commaWire = FTO::parseInput($comma, FTO::INPUT_TYPE_COMMA_SEPARATED, FTO::OUTPUT_AS_WIRE_DATA, 'people');
-        $this->assertArray($commaWire);
-        $this->assertIdentical(count($commaWire), 4);
+            $people = $this->getSrc('people.yaml');
+            $yamlPeopleWire = FTO::parseInput($people, FTO::INPUT_TYPE_YAML, FTO::OUTPUT_AS_WIRE_DATA, 'People');
+            $this->assertInstanceOf($yamlPeopleWire, self::T('FTOArray'));
+            $this->assertInstanceOf($yamlPeopleWire[0], self::T('FTOData'));
+            $this->assertSame((string) $yamlPeopleWire, 'People (2)');
+
+            $yamlPeopleAssoc = FTO::parseInput($people, FTO::INPUT_TYPE_YAML, FTO::OUTPUT_AS_ASSOC);
+            $this->assertArray($yamlPeopleAssoc);
+            $this->assertArray($yamlPeopleAssoc[0]);
+
+            $yamlPeopleObject = FTO::parseInput($people, FTO::INPUT_TYPE_YAML, FTO::OUTPUT_AS_OBJECT);
+            $this->assertArray($yamlPeopleObject);
+            $this->assertObject($yamlPeopleObject[0]);
         
-        $line = $this->getSrc('line-separated.txt');
-        $lineWire = FTO::parseInput($line, FTO::INPUT_TYPE_LINE_SEPARATED, FTO::OUTPUT_AS_WIRE_DATA, 'people');
-        $this->assertArray($lineWire);
-        $this->assertIdentical(count($lineWire), 5);
+        $this->newTest('Mixed YAML Array');
+        
+            $people = $this->getSrc('faulty-people.yaml');
+            $yamlPeopleWire = FTO::parseInput($people, FTO::INPUT_TYPE_YAML, FTO::OUTPUT_AS_WIRE_DATA, 'people');
+            $this->assertArray($yamlPeopleWire);
+        
+        $this->newTest('Matrix');
+        
+            $matrix = $this->getSrc('matrix.txt');
+            $matrixWire = FTO::parseInput($matrix, FTO::INPUT_TYPE_MATRIX, FTO::OUTPUT_AS_WIRE_DATA, 'people');
+            $this->assertArray($matrixWire);
+            $this->assertIdentical(count($matrixWire), 4);
+            $this->assertIdentical(count($matrixWire[0]), 4);
+        
+        $this->newTest('Matrix Object');
+        
+            $matrixObject = $this->getSrc('matrix-object.txt');
+            $matrixObjectWire = FTO::parseInput(
+                $matrixObject,
+                FTO::INPUT_TYPE_MATRIX_OBJECT,
+                FTO::OUTPUT_AS_WIRE_DATA,
+                'people'
+            );
+            
+            $this->assertInstanceOf($matrixObjectWire, self::T('FTOArray'));
+            $this->assertIdentical(count($matrixObjectWire), 3);
+            $this->assertInstanceOf($matrixObjectWire[0], self::T('FTOData'));
+            $this->assertIdentical($matrixObjectWire[0]->name, 'Neo');
+            $this->assertIdentical($matrixObjectWire->implode(',', 'name'), 'Neo,Trinity,Morpheus');
+
+        $this->newTest('Comma separated');
+        
+            $comma = $this->getSrc('comma-separated.txt');
+            $commaWire = FTO::parseInput($comma, FTO::INPUT_TYPE_COMMA_SEPARATED, FTO::OUTPUT_AS_WIRE_DATA, 'people');
+            $this->assertArray($commaWire);
+            $this->assertIdentical(count($commaWire), 4);
+        
+        $this->newTest('Line-break separated');
+        
+            $line = $this->getSrc('line-separated.txt');
+            $lineWire = FTO::parseInput($line, FTO::INPUT_TYPE_LINE_SEPARATED, FTO::OUTPUT_AS_WIRE_DATA, 'people');
+            $this->assertArray($lineWire);
+            $this->assertIdentical(count($lineWire), 5);
 
 
     }
@@ -99,11 +125,6 @@ class FieldtypeObjectTests extends \TestFest\TestFestSuite {
             $f->save();
             $fs = $this->fields->get($name);
             $this->assertIdentical($fs->inputType, FTO::INPUT_TYPE_JSON, 'inputType JSON');
-            
-            $f->inputType = FTO::INPUT_TYPE_CSV;
-            $f->save();
-            $fs = $this->fields->get($name);
-            $this->assertIdentical($fs->inputType, FTO::INPUT_TYPE_CSV, 'inputType CSV');
             
         $this->newTest('outputAs');
             

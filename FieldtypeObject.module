@@ -29,25 +29,25 @@ class FieldtypeObject extends FieldtypeTextarea {
         spl_autoload_register('owzim\FieldtypeObject\Autoloader::autoload');
         $this->addHookAfter('Fields::save', $this,  'saveDefaultValues');
     }
-    
+
     protected function saveDefaultValues(HookEvent $event) {
         $field = $event->arguments[0];
         $fieldtype = (string) $field->type;
-        
+
         // only continue if the field is type of this class
         if ($fieldtype !== get_class($this)) return;
-        
+
         // only run if the defaults have not been saved before
         if (!is_null($field->isInit)) return;
-        
+
         // save the defaults and the initialized state
         $field->inputType = $this->getValue($field, 'inputType');
         $field->outputAs = $this->getValue($field, 'outputAs');
         $field->fontFamily = $this->getValue($field, 'fontFamily', $this);
         $field->isInit = 1;
         $field->save();
-        
-        ChromePhp::log('$field',$fieldtype ,  get_class($this));
+
+        // ChromePhp::log('$field',$fieldtype ,  get_class($this));
     }
 
 
@@ -103,10 +103,10 @@ class FieldtypeObject extends FieldtypeTextarea {
 
 
     public function ___getConfigInputfields(Field $field) {
-        
+
         // $value = $this->getValue('inputType');
         // $value = $this->getValue('fontFamily', $this);
-        
+
         $inputfields = new InputfieldWrapper();
 
         $inputfields->append($this->getConfigInputfieldInputType($field));
@@ -137,17 +137,17 @@ class FieldtypeObject extends FieldtypeTextarea {
         return array(
             FTO::INPUT_TYPE_YAML => $this->_('YAML (Object)'),
             FTO::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated (Array)'),
+            FTO::INPUT_TYPE_MATRIX_OBJECT => $this->_('Matrix, first row as keys (Object)'),
             FTO::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated (Array)'),
             FTO::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated (Array)'),
             FTO::INPUT_TYPE_JSON => $this->_('JSON (Object)'),
-            FTO::INPUT_TYPE_CSV => $this->_('CSV (Object/Array)'),
         );
     }
 
     public function ___getConfigInputfieldInputType(Field $field) {
-        
+
         $inputTypes = $this->getInputTypes();
-        
+
         $f = $this->modules->get('InputfieldSelect');
         $f->attr('name', 'inputType');
         $f->attr('value', $this->getValue($field, 'inputType'));
@@ -172,7 +172,7 @@ class FieldtypeObject extends FieldtypeTextarea {
         $f->description = $this->_(preg_replace("/(\\n|\s)+/", ' ', '
             If **WireData/-Array** is selected, the parsed array/object has full
             support for things like **$page->people->implode(\',\', \'name\')**
-            (arrays) or **$person->get(\'title|name\')** (objects). **WireArray** 
+            (arrays) or **$person->get(\'title|name\')** (objects). **WireArray**
             will fall back to regular array, it its children are not of type
             **object/stdClass** or **WireData**.
         '));
@@ -185,7 +185,7 @@ class FieldtypeObject extends FieldtypeTextarea {
 
         return $f;
     }
-    
+
     // public function ___getConfigInputfieldsCSV(Field $field) {
 
     //     $f = $this->modules->get('InputfieldText');
@@ -212,9 +212,9 @@ class FieldtypeObject extends FieldtypeTextarea {
     // }
 
     public function ___getConfigInputfieldFontFamily(Field $field) {
-        
+
         $fontFamily = trim($this->getValue($field, 'fontFamily', $this));
-        
+
         $f = $this->modules->get('InputfieldText');
         $f->attr('name', 'fontFamily');
         $f->attr('value', $fontFamily);
@@ -224,38 +224,38 @@ class FieldtypeObject extends FieldtypeTextarea {
         $f->label = $this->_('Font Family');
         $f->notes = $this->_('Preview after save');
         $f->icon = 'font';
-        
+
         return $f;
     }
 
     public function showIfList($condition, $items) {
         return $condition . implode(', ' . $condition, $items);
     }
-    
-    
+
+
     public function getValue(Field $field, $name, $class = '\owzim\FieldtypeObject\FTO') {
-        
+
         preg_match_all('/((?:^|[A-Z])[a-z]+)/',$name,$matches);
         $items = $matches[0];
-        
+
         foreach ($items as $k => $v) $items[$k] = strtoupper($v);
         $ucName = implode('_', $items);
         $defaultName = "{$class}::DEFAULT_{$ucName}";
-        
+
         if (!defined($defaultName)) {
             throw new Exception("Constant '$defaultName' not defined");
         }
-        
+
         $defaultValue = constant($defaultName);
-        
+
         // ChromePhp::log($defaultName, constant($defaultName));
-        
+
         if (isset($field->$name)) {
             $value = $field->$name;
         } else {
             $value = $defaultValue;
         }
-        
+
         return is_int($defaultValue) ? (int) $value : $value;
     }
 }
