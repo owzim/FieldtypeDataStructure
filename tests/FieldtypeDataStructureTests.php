@@ -96,10 +96,10 @@ class FieldtypeDataStructureTests extends \TestFest\TestFestSuite {
             ));
 
             $this->assertInstanceOf($matrixObjectWire, self::T('FTDSArray'));
-            $this->assertIdentical(count($matrixObjectWire), 3);
+            $this->assertIdentical(count($matrixObjectWire), 4);
             $this->assertInstanceOf($matrixObjectWire[0], self::T('FTDSData'));
             $this->assertIdentical($matrixObjectWire[0]->name, 'Neo');
-            $this->assertIdentical($matrixObjectWire->implode(',', 'name'), 'Neo,Trinity,Morpheus');
+            $this->assertIdentical($matrixObjectWire->implode(',', 'name'), 'Neo,Trinity,Morpheus,Agent Smith');
 
 
         $this->newTest('Pipe Matrix Object');
