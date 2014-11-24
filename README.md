@@ -4,7 +4,20 @@
 
 #### for ProcessWire 2.5
 
-Field that stores Object data and formats it as an object, when requested.
+Field that stores any structural string-based data and converts it to object or array, when requested.
+
+## Index
+
+* [Setup](#setup)
+* [Config settings](#config-settings)
+  * [Input type](#input-type)
+  * [Output as](#output-as)
+  * [Delimiter](#delimiter)
+  * [Font Family](#font-family)
+* [Usage](#usage)
+* [More info about YAML](#more-info-about-yaml)
+* [Acknowledgements](#acknowledgements)
+* [Change Log](#change-log)
 
 ## Setup
 
@@ -111,7 +124,7 @@ foreach ($page->people as $person) {
 echo $out;
 ```
 
-### More info about YAML:
+### More info about YAML
 
 * [Complete idiot's introduction to Object](https://github.com/Animosity/CraftIRC/wiki/Complete-idiot%27s-introduction-to-yaml)
 * [Specification](http://yaml.org/spec/1.0/)
