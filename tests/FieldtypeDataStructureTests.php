@@ -155,10 +155,330 @@ class FieldtypeDataStructureTests extends \TestFest\TestFestSuite {
 
     }
 
+
+    function caseDataTypesOnField() {
+
+        $start = microtime(true);
+
+        $fn = 'fieldtypeObjectTest';
+        $pn = 'fieldtype-object-tests';
+        $tn = 'fieldtype-object-tests';
+
+        $m = $this->modules->get('FieldtypeDataStructure');
+
+        $f = $this->fields->get($fn);
+        if (!$f) {
+            $f = new Field();
+        }
+        $f->type = 'FieldtypeDataStructure';
+        $f->name = $fn;
+        $f->save();
+
+        $t = $this->templates->get($tn);
+        if (!$t) { $t = new Template(); }
+
+        $t->name = $tn;
+
+        $fg = $this->fieldgroups->get($tn);
+        if (!$fg) { $fg = new FieldGroup(); }
+
+        $fg->name = $tn;
+        $fg->save();
+        $fg->add($this->fields->get('title'));
+        $fg->add($f);
+        $fg->save();
+
+        $t->fields = $fg;
+
+        $t->save();
+
+        $p = $this->pages->get("/$pn/");
+        // return;
+        if (!$p->id) { $p = new Page(); }
+
+        $p->template = $t;
+        $p->name = $pn;
+        $p->title = $pn;
+        // $p->save();
+        $p->parent = $this->pages->get('/');
+        $p->save();
+
+
+        $this->newTest('YAML WireArray');
+
+            $people = $this->getSrc('people.yaml');
+
+
+            /**
+             * YAML WIRE
+             */
+
+            $f->inputType = FTDS::INPUT_TYPE_YAML;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $yamlPeopleWire = $p->$fn;
+
+            $this->assertInstanceOf($yamlPeopleWire, self::T('FTDSArray'));
+            $this->assertInstanceOf($yamlPeopleWire[0], self::T('FTDSData'));
+            $this->assertSame((string) $yamlPeopleWire, "$fn (2)");
+            // ChromePhp::log('$yamlPeopleWire', $yamlPeopleWire);
+
+            $m->uncache($p, $f);
+
+
+            /**
+             * YAML ASSOC
+             */
+
+            $f->inputType = FTDS::INPUT_TYPE_YAML;
+            $f->outputAs = FTDS::OUTPUT_AS_ASSOC;
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $yamlPeopleAssoc = $p->$fn;
+
+            $this->assertArray($yamlPeopleAssoc);
+            $this->assertArray($yamlPeopleAssoc[0]);
+
+            $m->uncache($p, $f);
+
+
+            /**
+             * YAML OBJECT
+             */
+
+            $f->inputType = FTDS::INPUT_TYPE_YAML;
+            $f->outputAs = FTDS::OUTPUT_AS_OBJECT;
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $yamlPeopleObject = $p->$fn;
+
+            $this->assertArray($yamlPeopleObject);
+            $this->assertObject($yamlPeopleObject[0]);
+
+            $m->uncache($p, $f);
+
+
+        $this->newTest('Mixed YAML Array');
+
+            /**
+             * YAML MIXED
+             */
+
+            $people = $this->getSrc('faulty-people.yaml');
+
+            $f->inputType = FTDS::INPUT_TYPE_YAML;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $yamlPeopleWire = $p->$fn;
+
+            $this->assertArray($yamlPeopleWire);
+
+            $m->uncache($p, $f);
+
+
+        $this->newTest('Comma Matrix');
+
+            $people = $this->getSrc('matrix.txt');
+
+            $f->inputType = FTDS::INPUT_TYPE_MATRIX;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            $f->delimiter = FTDS::DEFAULT_DELIMITER;
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $matrixWire = $p->$fn;
+
+            $this->assertArray($matrixWire);
+            $this->assertIdentical(count($matrixWire), 4);
+            $this->assertIdentical(count($matrixWire[0]), 4);
+
+            $m->uncache($p, $f);
+
+
+        $this->newTest('Pipe Matrix');
+
+            $people = $this->getSrc('pipe-matrix.txt');
+
+            $f->inputType = FTDS::INPUT_TYPE_MATRIX;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            $f->delimiter = '|';
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $pipeMatrixWire = $p->$fn;
+
+            $this->assertArray($pipeMatrixWire);
+            $this->assertIdentical(count($pipeMatrixWire), 4);
+            $this->assertIdentical(count($pipeMatrixWire[0]), 4);
+
+            $m->uncache($p, $f);
+
+
+        $this->newTest('Comma Matrix Object');
+
+            $people = $this->getSrc('matrix-object.txt');
+
+            $f->inputType = FTDS::INPUT_TYPE_MATRIX_OBJECT;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            $f->delimiter = FTDS::DEFAULT_DELIMITER;
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $matrixObjectWire = $p->$fn;
+
+            $this->assertInstanceOf($matrixObjectWire, self::T('FTDSArray'));
+            $this->assertIdentical(count($matrixObjectWire), 4);
+            $this->assertInstanceOf($matrixObjectWire[0], self::T('FTDSData'));
+            $this->assertIdentical($matrixObjectWire[0]->name, 'Neo');
+            $this->assertIdentical($matrixObjectWire->implode(',', 'name'), 'Neo,Trinity,Morpheus,Agent Smith');
+
+            $m->uncache($p, $f);
+
+
+        $this->newTest('Pipe Matrix Object');
+
+            $people = $this->getSrc('pipe-matrix-object.txt');
+
+            $f->inputType = FTDS::INPUT_TYPE_MATRIX_OBJECT;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            $f->delimiter = '|';
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $pipeMatrixObjectWire = $p->$fn;
+
+            $this->assertInstanceOf($pipeMatrixObjectWire, self::T('FTDSArray'));
+            $this->assertIdentical(count($pipeMatrixObjectWire), 3);
+            $this->assertInstanceOf($pipeMatrixObjectWire[0], self::T('FTDSData'));
+            $this->assertIdentical($pipeMatrixObjectWire[0]->name, 'Neo');
+            $this->assertIdentical($pipeMatrixObjectWire->implode(',', 'name'), 'Neo,Trinity,Morpheus');
+
+            $m->uncache($p, $f);
+
+
+        $this->newTest('Comma separated');
+
+            $people = $this->getSrc('comma-separated.txt');
+
+            $f->inputType = FTDS::INPUT_TYPE_DELIMITER_SEPARATED;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            $f->delimiter = FTDS::DEFAULT_DELIMITER;
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $commaWire = $p->$fn;
+
+            $this->assertArray($commaWire);
+            $this->assertIdentical(count($commaWire), 4);
+
+            $m->uncache($p, $f);
+
+
+        $this->newTest('Pipe separated');
+
+            $people = $this->getSrc('pipe-separated.txt');
+
+            $f->inputType = FTDS::INPUT_TYPE_DELIMITER_SEPARATED;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            // $f->delimiter = FTDS::DEFAULT_DELIMITER;
+            $f->delimiter = '|';
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $pipeWire = $p->$fn;
+
+            $this->assertArray($pipeWire);
+            $this->assertIdentical(count($pipeWire), 4);
+
+            $m->uncache($p, $f);
+
+
+        $this->newTest('Line-break separated');
+
+
+            $people = $this->getSrc('line-separated.txt');
+
+
+            $f->inputType = FTDS::INPUT_TYPE_LINE_SEPARATED;
+            $f->outputAs = FTDS::OUTPUT_AS_WIRE_DATA;
+            // $f->delimiter = FTDS::DEFAULT_DELIMITER;
+            // $f->delimiter = '|';
+            $f->save();
+
+            $p = $this->pages->get("/$pn/"); $p->of(false);
+            $p->$fn = $people; $p->save(); $p->of(true);
+
+            $lineWire = $p->$fn;
+
+            $this->assertArray($lineWire);
+            $this->assertIdentical(count($lineWire), 5);
+
+            $m->uncache($p, $f);
+
+
+        /**
+         * delete everything
+         */
+
+        $p = $this->pages->get("/$pn/");
+        if ($p->id) {
+            $this->pages->delete($p);
+        }
+
+        if ($t = $this->templates->get($tn)) {
+            $this->templates->delete($t);
+        }
+
+        if ($fg = $this->fieldgroups->get($tn)) {
+            $this->fieldgroups->delete($fg);
+        }
+
+        if ($f = $this->fields->get($fn)) {
+            $this->fields->delete($f);
+        }
+
+        $end = microtime(true);
+        $ms = ($end-$start)*1000;
+
+        // ChromePhp::log('$ms', $ms);
+
+    }
+
     function caseFieldSettings() {
         $name = 'fieldtypeObjectTest';
 
-        $f = new Field();
+        $f = $this->fields->get($name);
+        if (!$f) {
+            $f = new Field();
+        }
+
         $f->type = 'FieldtypeDataStructure';
         $f->name = $name;
         $f->save();
