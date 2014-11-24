@@ -11,8 +11,8 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     public static function getModuleInfo() {
         return array(
             'title' => 'Fieldtype DataStructure',
-            'summary' => 'Field that stores any structural string-based data and formats it as an object, when requested.',
-            'version' => '0.3.0',
+            'summary' => 'Field that stores any structural string-based data and formats it as an object or array, when requested.',
+            'version' => '0.4.1',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(
