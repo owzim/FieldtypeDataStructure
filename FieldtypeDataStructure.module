@@ -9,6 +9,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     protected static $parseCache = array();
 
     public static function getModuleInfo() {
+
         return array(
             'title' => 'Fieldtype DataStructure',
             'summary' => 'Field that stores any structural string-based data and converts it to object or array, when requested.',
@@ -23,14 +24,28 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     }
 
 
+    /**
+     * initialize the parent module, register the class autoloader, and add a hook
+     */
     public function init() {
+
         parent::init();
         require_once(__DIR__ . '/owzim/FieldtypeDataStructure/Autoloader.php');
         spl_autoload_register('owzim\FieldtypeDataStructure\Autoloader::autoload');
         $this->addHookAfter('Fields::save', $this,  'saveDefaultValues');
     }
 
+
+    /**
+     * save the defaults right after first save, so they are available
+     * also when the user does not save the field again
+     * (common problem with fields after changing the type)
+     *
+     * @param  HookEvent $event
+     * @return [type]           [description]
+     */
     protected function saveDefaultValues(HookEvent $event) {
+
         $field = $event->arguments[0];
         $fieldtype = (string) $field->type;
 
@@ -47,15 +62,28 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         $field->delimiter = $this->getValue($field, 'delimiter');
         $field->isInit = 1;
         $field->save();
-
-        // ChromePhp::log('$field',$fieldtype ,  get_class($this));
     }
 
 
+    /**
+     * @param  Page   $page
+     * @param  Field  $field
+     * @param  mixed $value
+     * @return mixed
+     */
     public function ___formatValue(Page $page, Field $field, $value) {
         return $this->getCachedValue($page, $field, $value);
     }
 
+
+    /**
+     * get a cached value to prevent reparsing when requested multiple times
+     *
+     * @param  Page   $page
+     * @param  Field  $field
+     * @param  mixed  $value
+     * @return mixed
+     */
     public function getCachedValue(Page $page, Field $field, $value) {
 
         $cacheKey = "{$page->id}_{$field->id}";
@@ -67,6 +95,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
             return self::$parseCache[$cacheKey];
         }
     }
+
 
     /**
      * remove the cached value of a field of a page
@@ -81,22 +110,32 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         }
     }
 
+
     /**
      * hook in here to add additional parsers
+     *
+     * @param  Page   $page
+     * @param  Field  $field
+     * @param  mixed  $value
+     * @return mixed
      */
     public function ___parseValue(Page $page, Field $field, $value) {
-        return FTDS::parseInput(
-            $value,
-            array(
-                'inputType' => $this->getValue($field, 'inputType'),
-                'outputAs' => $this->getValue($field, 'outputAs'),
-                'delimiter' => $this->getValue($field, 'delimiter'),
-                'toStringString' => $field->get('label|name'),
-            )
-        );
+        return FTDS::parseInput($value, array(
+            'inputType' => $this->getValue($field, 'inputType'),
+            'outputAs' => $this->getValue($field, 'outputAs'),
+            'delimiter' => $this->getValue($field, 'delimiter'),
+            'toStringString' => $field->get('label|name'),
+        ));
     }
 
 
+    /**
+     * getInputfield
+     *
+     * @param  Page   $page
+     * @param  Field  $field
+     * @return Inputfield
+     */
     public function getInputfield(Page $page, Field $field) {
 
         $fontFamily = trim($this->getValue($field, 'fontFamily', $this));
@@ -120,6 +159,12 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     }
 
 
+    /**
+     * getConfigInputfields
+     *
+     * @param  Field  $field
+     * @return InputfieldWrapper
+     */
     public function ___getConfigInputfields(Field $field) {
 
         $inputfields = new InputfieldWrapper();
@@ -134,6 +179,13 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         return $inputfields;
     }
 
+
+    /**
+     * addParentInputfields
+     *
+     * @param  Field             $field
+     * @param  InputfieldWrapper $inputfields
+     */
     public function ___addParentInputfields(Field $field, InputfieldWrapper $inputfields) {
         $forbidden = array('textformatters', 'contentType');
         $parentInputfields = parent::___getConfigInputfields($field);
@@ -143,6 +195,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
             }
         }
     }
+
 
     /**
      * get the possible input types
@@ -161,6 +214,14 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         );
     }
 
+
+    /**
+     * getConfigInputfieldInputType
+     *
+     * @param  Field  $field
+     * @return Field
+     * @see getConfigInputfields
+     */
     public function ___getConfigInputfieldInputType(Field $field) {
 
         $inputTypes = $this->getInputTypes();
@@ -173,10 +234,17 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         }
         $f->label = $this->_('Input type');
         $f->icon = 'sign-in';
-        // $f->columnWidth = 70;
         return $f;
     }
 
+
+    /**
+     * getConfigInputfieldOutputAs
+     *
+     * @param  Field  $field
+     * @return Field
+     * @see getConfigInputfields
+     */
     public function ___getConfigInputfieldOutputAs(Field $field) {
 
         $f = $this->modules->get('InputfieldSelect');
@@ -205,6 +273,13 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     }
 
 
+    /**
+     * getConfigInputfieldDelimiter
+     *
+     * @param  Field  $field
+     * @return Field
+     * @see getConfigInputfields
+     */
     public function ___getConfigInputfieldDelimiter(Field $field) {
 
         $f = $this->modules->get('InputfieldText');
@@ -213,7 +288,6 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         $f->size = 5;
         $f->label = $this->_('Delimiter');
         $f->icon = 'arrows-h';
-        // $f->columnWidth = 30;
         $f->showIf = $this->showIfList('inputType!=', array(
             FTDS::INPUT_TYPE_YAML,
             FTDS::INPUT_TYPE_LINE_SEPARATED,
@@ -223,31 +297,14 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         return $f;
     }
 
-    // public function ___getConfigInputfieldsCSV(Field $field) {
 
-    //     $f = $this->modules->get('InputfieldText');
-    //     $f->attr('name', 'csvDelimiter');
-    //     $f->label = $this->_('CSV delimiter');
-    //     $f->attr('value', !isset($field->csvDelimiter) ? FTDS::DEFAULT_CSV_DELIMITER : $field->csvDelimiter);
-    //     $f->attr('optionColumns', 1);
-    //     $f->icon = 'sign-out';
-    //     $f->description = $this->_(implode(' ', array(
-    //         'If **WireData/-Array** is selected, the parsed array/object has full',
-    //         'support for things like **$page->people->implode(\',\', \'name\')** (arrays)',
-    //         'or **$person->get(\'title|name\')** (objects).',
-    //         '**WireArray** will fall back to regular array, it its children',
-    //         'are not of type **object/stdClass** or **WireData**.',
-    //     )));
-
-    //     $f->showIf = $this->showIfList('inputType!=', array(
-    //         FTDS::INPUT_TYPE_MATRIX,
-    //         FTDS::INPUT_TYPE_DELIMITER_SEPARATED,
-    //         FTDS::INPUT_TYPE_LINE_SEPARATED,
-    //     ));
-
-    //     return $f;
-    // }
-
+    /**
+     * getConfigInputfieldFontFamily
+     *
+     * @param  Field  $field
+     * @return Field
+     * @see getConfigInputfields
+     */
     public function ___getConfigInputfieldFontFamily(Field $field) {
 
         $fontFamily = trim($this->getValue($field, 'fontFamily', $this));
@@ -265,11 +322,36 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         return $f;
     }
 
-    public function showIfList($condition, $items) {
+
+    /**
+     * generate a showIf string
+     *
+     * @param  string $condition
+     * @param  array $items
+     * @return string
+     * @see  getConfigInputfieldOutputAs
+     * @see  getConfigInputfieldDelimiter
+     */
+    public function showIfList($condition, array $items) {
         return $condition . implode(', ' . $condition, $items);
     }
 
 
+    /**
+     * get a field setting or the default, if not defined
+     *
+     * @param  Field  $field
+     * @param  string $name
+     * @param  string $class
+     * @return mixed
+     * @see  saveDefaultValues
+     * @see  parseValue
+     * @see  getInputfield
+     * @see  getConfigInputfieldInputType
+     * @see  getConfigInputfieldOutputAs
+     * @see  getConfigInputfieldDelimiter
+     * @see  getConfigInputfieldFontFamily
+     */
     public function getValue(Field $field, $name, $class = '\owzim\FieldtypeDataStructure\FTDS') {
 
         preg_match_all('/((?:^|[A-Z])[a-z]+)/',$name,$matches);
@@ -284,8 +366,6 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         }
 
         $defaultValue = constant($defaultName);
-
-        // ChromePhp::log($defaultName, constant($defaultName));
 
         if (isset($field->$name)) {
             $value = $field->$name;

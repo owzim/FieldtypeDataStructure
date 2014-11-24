@@ -2,14 +2,14 @@
 namespace owzim\FieldtypeDataStructure;
 
 use \owzim\FieldtypeDataStructure\Vendor\Spyc;
+
 class FTDS {
 
     const OUTPUT_AS_ASSOC = 0;
     const OUTPUT_AS_OBJECT = 1;
     const OUTPUT_AS_WIRE_DATA = 2;
-    const DEFAULT_OUTPUT_AS = 2;
 
-    const DEFAULT_DELIMITER = ',';
+    const DEFAULT_OUTPUT_AS = 2;
 
     const INPUT_TYPE_YAML = 0;
     const INPUT_TYPE_MATRIX = 1;
@@ -17,8 +17,17 @@ class FTDS {
     const INPUT_TYPE_LINE_SEPARATED = 3;
     const INPUT_TYPE_JSON = 4;
     const INPUT_TYPE_MATRIX_OBJECT = 5;
+
     const DEFAULT_INPUT_TYPE = 0;
 
+    const DEFAULT_DELIMITER = ',';
+
+
+    /**
+     * $defaultOptions
+     *
+     * @var array
+     */
     protected static $defaultOptions = array(
         'inputType' => self::DEFAULT_INPUT_TYPE,
         'outputAs' => self::DEFAULT_OUTPUT_AS,
@@ -26,7 +35,14 @@ class FTDS {
         'toStringString' => '',
     );
 
-    public static function isArray($array) {
+
+    /**
+     * check if an array is a numeric array
+     *
+     * @param  array  $array
+     * @return boolean
+     */
+    public static function isArray(array $array) {
         if (!is_array($array)) return false;
         $len = count($array);
         $iterator = 0;
@@ -37,10 +53,18 @@ class FTDS {
         return true;
     }
 
-    public static function isAssoc($array) {
+
+    /**
+     * check if an array is an associative array
+     *
+     * @param  array   $array
+     * @return boolean
+     */
+    public static function isAssoc(array $array) {
         if (!is_array($array)) return false;
         return !self::isArray($array);
     }
+
 
     /**
      * merge two objects
@@ -52,6 +76,7 @@ class FTDS {
     public static function objectMerge($obj1, $obj2) {
         return (object) array_merge((array) $obj1, (array) $obj2);
     }
+
 
     /**
      * convert an assoc array to an object recursively
@@ -86,11 +111,12 @@ class FTDS {
         return ($hasStrKeys) ? $resultObj : $resultArr;
     }
 
+
     /**
-     * convert an assoc array to an object recursively
+     * convert an assoc array to WireData/array
      *
      * @param  array  $array
-     * @return stdClass
+     * @return WireData|array
      */
     public static function array2wire(array $array) {
         $resultObj = new FTDSData;
@@ -119,6 +145,13 @@ class FTDS {
         return ($hasStrKeys) ? $resultObj : $resultArr;
     }
 
+
+    /**
+     * convert an assoc array to a WireData/WireArray structure
+     *
+     * @param  array  $array
+     * @return WireData|WireArray
+     */
     public static function array2wireExt(array $array) {
         $resultObj = new FTDSData;
         $resultArr = array();
@@ -155,6 +188,13 @@ class FTDS {
     }
 
 
+    /**
+     * parseInput
+     *
+     * @param  string $string
+     * @param  array  $options
+     * @return mixed
+     */
     public static function parseInput($string, $options = array()) {
 
         $options = (object) array_merge(self::$defaultOptions, $options);
@@ -187,7 +227,15 @@ class FTDS {
     }
 
 
-
+    /**
+     * convert into a WireData/WireArray or a stdClass/array structrue if
+     * $outputAs says so
+     *
+     * @param  mixed  $value
+     * @param  int $outputAs
+     * @param  string $toStringString
+     * @return mixed
+     */
     public static function convert(
         $value,
         $outputAs = self::DEFAULT_OUTPUT_AS,
@@ -216,6 +264,13 @@ class FTDS {
     }
 
 
+    /**
+     * split a string into an array
+     *
+     * @param  string $string
+     * @param  string $delimiter
+     * @return array
+     */
     public static function parseLines($string, $delimiter = "/\n/") {
 
         $arr = preg_split($delimiter, $string);
@@ -228,6 +283,14 @@ class FTDS {
         return $rtn;
     }
 
+
+    /**
+     * split a string into an array
+     *
+     * @param  string $string
+     * @param  string $delimiter
+     * @return array
+     */
     public static function parseCols($string, $delimiter = self::DEFAULT_DELIMITER) {
 
         $arr = explode($delimiter, $string);
@@ -240,6 +303,15 @@ class FTDS {
         return $rtn;
     }
 
+
+    /**
+     * parseMatrix
+     *
+     * @param  string $string
+     * @param  string $colDelimiter
+     * @param  string $lineDelimiter
+     * @return array
+     */
     public static function parseMatrix(
         $string,
         $colDelimiter = self::DEFAULT_DELIMITER,
@@ -257,6 +329,15 @@ class FTDS {
         return $rtn;
     }
 
+
+    /**
+     * parse a matrix into an assoc array and use the first row as keys
+     *
+     * @param  string $string
+     * @param  string $colDelimiter
+     * @param  string $lineDelimiter
+     * @return array                 associative array
+     */
     public static function parseMatrixObject(
         $string,
         $colDelimiter = self::DEFAULT_DELIMITER,
