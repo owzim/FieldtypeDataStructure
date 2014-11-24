@@ -11,8 +11,8 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     public static function getModuleInfo() {
         return array(
             'title' => 'Fieldtype DataStructure',
-            'summary' => 'Field that stores any structural string-based data and formats it as an object or array, when requested.',
-            'version' => '0.4.1',
+            'summary' => 'Field that stores any structural string-based data and converts it to object or array, when requested.',
+            'version' => '0.4.2',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(
@@ -59,10 +59,11 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     public function getCachedValue(Page $page, Field $field, $value) {
 
         $cacheKey = "{$page->id}_{$field->id}";
-
+        
+        // if it's not cached yet, parse, save to cache and return
         if (!isset(self::$parseCache[$cacheKey])) {
             return self::$parseCache[$cacheKey] = $this->parseValue($page, $field, $value);
-        } else {
+        } else { // return the cached value
             return self::$parseCache[$cacheKey];
         }
     }
@@ -73,9 +74,12 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     public function ___parseValue(Page $page, Field $field, $value) {
         return FTDS::parseInput(
             $value,
-            $this->getValue($field, 'inputType'),
-            $this->getValue($field, 'outputAs'),
-            $field->get('label|name')
+            array(
+                'inputType' => $this->getValue($field, 'inputType'),
+                'outputAs' => $this->getValue($field, 'outputAs'),
+                'delimiter' => $this->getValue($field, 'delimiter'),
+                'toStringString' => $field->get('label|name'),
+            )
         );
     }
 
@@ -85,7 +89,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         $fontFamily = trim($this->getValue($field, 'fontFamily', $this));
         $process = $this->wire('page')->process;
 
-        // convert to InputfieldText, if only one row it set but only if not on
+        // convert to InputfieldText, if only one row is set but only if not on
         // edit field page, because it would cause the edit field page to show
         // only options for InputfieldText, not sure why
         if ($process !== 'ProcessField' && $field->rows == 1) {
@@ -137,12 +141,12 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
      */
     public function ___getInputTypes() {
         return array(
-            FTDS::INPUT_TYPE_YAML => $this->_('YAML (Object)'),
+            FTDS::INPUT_TYPE_YAML => $this->_('YAML (Object/Array)'),
             FTDS::INPUT_TYPE_MATRIX => $this->_('Matrix, delimiter and line-break separated (Array)'),
-            FTDS::INPUT_TYPE_MATRIX_OBJECT => $this->_('Matrix, first row as keys (Object)'),
-            FTDS::INPUT_TYPE_COMMA_SEPARATED => $this->_('Delimiter separated (Array)'),
+            FTDS::INPUT_TYPE_MATRIX_OBJECT => $this->_('Matrix, first row as keys (Object/Array)'),
+            FTDS::INPUT_TYPE_DELIMITER_SEPARATED => $this->_('Delimiter separated (Array)'),
             FTDS::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated (Array)'),
-            FTDS::INPUT_TYPE_JSON => $this->_('JSON (Object)'),
+            FTDS::INPUT_TYPE_JSON => $this->_('JSON (Object/Array)'),
         );
     }
 
@@ -182,7 +186,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
 
         $f->showIf = $this->showIfList('inputType!=', array(
             FTDS::INPUT_TYPE_MATRIX,
-            FTDS::INPUT_TYPE_COMMA_SEPARATED,
+            FTDS::INPUT_TYPE_DELIMITER_SEPARATED,
             FTDS::INPUT_TYPE_LINE_SEPARATED,
         ));
 
@@ -226,7 +230,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
 
     //     $f->showIf = $this->showIfList('inputType!=', array(
     //         FTDS::INPUT_TYPE_MATRIX,
-    //         FTDS::INPUT_TYPE_COMMA_SEPARATED,
+    //         FTDS::INPUT_TYPE_DELIMITER_SEPARATED,
     //         FTDS::INPUT_TYPE_LINE_SEPARATED,
     //     ));
 

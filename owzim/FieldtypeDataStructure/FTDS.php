@@ -13,11 +13,18 @@ class FTDS {
 
     const INPUT_TYPE_YAML = 0;
     const INPUT_TYPE_MATRIX = 1;
-    const INPUT_TYPE_COMMA_SEPARATED = 2;
+    const INPUT_TYPE_DELIMITER_SEPARATED = 2;
     const INPUT_TYPE_LINE_SEPARATED = 3;
     const INPUT_TYPE_JSON = 4;
     const INPUT_TYPE_MATRIX_OBJECT = 5;
     const DEFAULT_INPUT_TYPE = 0;
+
+    protected static $defaultOptions = array(
+        'inputType' => self::DEFAULT_INPUT_TYPE,
+        'outputAs' => self::DEFAULT_OUTPUT_AS,
+        'delimiter' => self::DEFAULT_DELIMITER,
+        'toStringString' => '',
+    );
 
     public static function isArray($array) {
         if (!is_array($array)) return false;
@@ -148,25 +155,27 @@ class FTDS {
     }
 
 
-    public static function parseInput($string, $inputType, $outputAs, $toStringString = '') {
+    public static function parseInput($string, $options = array()) {
+
+        $options = (object) array_merge(self::$defaultOptions, $options);
 
         switch (true) {
-            case $inputType === self::INPUT_TYPE_YAML:
+            case $options->inputType === self::INPUT_TYPE_YAML:
                 $string = Spyc::YAMLLoadString($string);
                 break;
-            case $inputType === self::INPUT_TYPE_MATRIX:
-                $string = self::parseMatrix($string);
+            case $options->inputType === self::INPUT_TYPE_MATRIX:
+                $string = self::parseMatrix($string, $options->delimiter);
                 break;
-            case $inputType === self::INPUT_TYPE_MATRIX_OBJECT:
-                $string = self::parseMatrixObject($string);
+            case $options->inputType === self::INPUT_TYPE_MATRIX_OBJECT:
+                $string = self::parseMatrixObject($string, $options->delimiter);
                 break;
-            case $inputType === self::INPUT_TYPE_COMMA_SEPARATED:
-                $string = self::parseCols($string);
+            case $options->inputType === self::INPUT_TYPE_DELIMITER_SEPARATED:
+                $string = self::parseCols($string, $options->delimiter);
                 break;
-            case $inputType === self::INPUT_TYPE_LINE_SEPARATED:
+            case $options->inputType === self::INPUT_TYPE_LINE_SEPARATED:
                 $string = self::parseLines($string);
                 break;
-            case $inputType === self::INPUT_TYPE_JSON:
+            case $options->inputType === self::INPUT_TYPE_JSON:
                 $string = json_decode($string);
                 break;
             default:
@@ -174,12 +183,16 @@ class FTDS {
                 break;
         }
 
-        return self::convert($string, $outputAs, $toStringString);
+        return self::convert($string, $options->outputAs, $options->toStringString);
     }
 
 
 
-    public static function convert($value, $outputAs = self::DEFAULT_OUTPUT_AS, $toStringString = '') {
+    public static function convert(
+        $value,
+        $outputAs = self::DEFAULT_OUTPUT_AS,
+        $toStringString = ''
+    ) {
 
         if (!$value) return $value;
 
@@ -203,8 +216,9 @@ class FTDS {
     }
 
 
-    public static function parseLines($string, $separator = "/\n/") {
-        $arr = preg_split($separator, $string);
+    public static function parseLines($string, $delimiter = "/\n/") {
+
+        $arr = preg_split($delimiter, $string);
         $rtn = array();
         foreach ($arr as $key => $value) {
             if ($trimmed = trim($value)) {
@@ -214,8 +228,9 @@ class FTDS {
         return $rtn;
     }
 
-    public static function parseCols($string, $separator = ',') {
-        $arr = explode($separator, $string);
+    public static function parseCols($string, $delimiter = self::DEFAULT_DELIMITER) {
+
+        $arr = explode($delimiter, $string);
         $rtn = array();
         foreach ($arr as $key => $value) {
             if ($trimmed = trim($value)) {
@@ -225,11 +240,16 @@ class FTDS {
         return $rtn;
     }
 
-    public static function parseMatrix($string) {
-        $lines = self::parseLines($string);
+    public static function parseMatrix(
+        $string,
+        $colDelimiter = self::DEFAULT_DELIMITER,
+        $lineDelimiter = "/\n/"
+    ) {
+
+        $lines = self::parseLines($string, $lineDelimiter);
         $rtn = array();
         foreach ($lines as $line) {
-            $cols = self::parseCols($line);
+            $cols = self::parseCols($line, $colDelimiter);
             if (count($cols) > 0) {
                 $rtn[] = $cols;
             }
@@ -237,8 +257,13 @@ class FTDS {
         return $rtn;
     }
 
-    public static function parseMatrixObject($string) {
-        $matrix = self::parseMatrix($string);
+    public static function parseMatrixObject(
+        $string,
+        $colDelimiter = self::DEFAULT_DELIMITER,
+        $lineDelimiter = "/\n/"
+    ) {
+
+        $matrix = self::parseMatrix($string, $colDelimiter, $lineDelimiter);
 
         $keys = array_shift($matrix);
 

@@ -10,4 +10,5 @@
   hobbies:
     - cycling
     - fishing
+# this last item is makes the array not solely key based
 - something

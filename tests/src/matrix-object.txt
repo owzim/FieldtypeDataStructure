@@ -2,3 +2,4 @@ name,height,hasSunglasses,isTheChosenOne,
 Neo,178cm,yes,yes,
 Trinity,171cm,most of the times,no,
 Morpheus,186cm,yes,no,
+Agent Smith,182cm,of course,nope
