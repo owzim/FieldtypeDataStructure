@@ -12,7 +12,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         return array(
             'title' => 'Fieldtype DataStructure',
             'summary' => 'Field that stores any structural string-based data and converts it to object or array, when requested.',
-            'version' => '0.4.2',
+            'version' => '0.4.4',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(

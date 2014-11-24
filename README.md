@@ -1,8 +1,5 @@
 # Fieldtype DataStructure
-
----
-
-#### for ProcessWire 2.5
+Version `0.4.4`, for [ProcessWire 2.5](http://processwire.com/)
 
 Field that stores any structural string-based data and converts it to object or array, when requested.
 
