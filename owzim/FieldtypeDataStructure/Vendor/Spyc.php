@@ -1,6 +1,6 @@
 <?php
 
-namespace owzim\FieldtypeObject\Vendor;
+namespace owzim\FieldtypeDataStructure\Vendor;
 
 /**
    * Spyc -- A Simple PHP YAML Class

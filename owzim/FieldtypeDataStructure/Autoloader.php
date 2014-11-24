@@ -9,10 +9,10 @@
  * @copyright Copyright (c) 2013, neuwaerts GmbH
  * @filesource
  * 
- * modified by owzim to use 'owzim\FieldtypeObject' namespace
+ * modified by owzim to use 'owzim\FieldtypeDataStructure' namespace
  */
 
-namespace owzim\FieldtypeObject;
+namespace owzim\FieldtypeDataStructure;
 
 /**
  * Class Autoloader
@@ -22,8 +22,8 @@ namespace owzim\FieldtypeObject;
  * Can be registered as followed:
  *
  * <code>
- * require_once('/path/to/FieldtypeObject/owzim/FieldtypeObject/Autoloader.php');
- * spl_autoload_register('owzim\FieldtypeObject\Autoloader::autoload');
+ * require_once('/path/to/FieldtypeDataStructure/owzim/FieldtypeDataStructure/Autoloader.php');
+ * spl_autoload_register('owzim\FieldtypeDataStructure\Autoloader::autoload');
  * </code>
  *
  * @see http://www.php-fig.org/psr/0/

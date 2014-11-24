@@ -1,8 +1,8 @@
 <?php
 
-use \owzim\FieldtypeObject\FTO;
+use \owzim\FieldtypeDataStructure\FTDS;
 
-class FieldtypeObject extends FieldtypeTextarea {
+class FieldtypeDataStructure extends FieldtypeTextarea {
 
     const DEFAULT_FONT_FAMILY = 'Consolas, Monaco, "Andale Mono", monospace';
 
@@ -10,14 +10,14 @@ class FieldtypeObject extends FieldtypeTextarea {
 
     public static function getModuleInfo() {
         return array(
-            'title' => 'Fieldtype Object',
+            'title' => 'Fieldtype DataStructure',
             'summary' => 'Field that stores any structural string-based data and formats it as an object, when requested.',
             'version' => '0.3.0',
             'author' => 'owzim',
             'icon' => 'code',
             'tests' => array(
-                'title' => 'Fieldtype Object',
-                'classPath' => './tests/FieldtypeObjectTests.php'
+                'title' => 'Fieldtype DataStructure',
+                'classPath' => './tests/FieldtypeDataStructureTests.php'
             )
         );
     }
@@ -25,8 +25,8 @@ class FieldtypeObject extends FieldtypeTextarea {
 
     public function init() {
         parent::init();
-        require_once(__DIR__ . '/owzim/FieldtypeObject/Autoloader.php');
-        spl_autoload_register('owzim\FieldtypeObject\Autoloader::autoload');
+        require_once(__DIR__ . '/owzim/FieldtypeDataStructure/Autoloader.php');
+        spl_autoload_register('owzim\FieldtypeDataStructure\Autoloader::autoload');
         $this->addHookAfter('Fields::save', $this,  'saveDefaultValues');
     }
 
@@ -70,7 +70,7 @@ class FieldtypeObject extends FieldtypeTextarea {
      * hook in here to add additional parsers
      */
     public function ___parseValue(Page $page, Field $field, $value) {
-        return FTO::parseInput(
+        return FTDS::parseInput(
             $value,
             $this->getValue($field, 'inputType'),
             $this->getValue($field, 'outputAs'),
@@ -135,12 +135,12 @@ class FieldtypeObject extends FieldtypeTextarea {
      */
     public function ___getInputTypes() {
         return array(
-            FTO::INPUT_TYPE_YAML => $this->_('YAML (Object)'),
-            FTO::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated (Array)'),
-            FTO::INPUT_TYPE_MATRIX_OBJECT => $this->_('Matrix, first row as keys (Object)'),
-            FTO::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated (Array)'),
-            FTO::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated (Array)'),
-            FTO::INPUT_TYPE_JSON => $this->_('JSON (Object)'),
+            FTDS::INPUT_TYPE_YAML => $this->_('YAML (Object)'),
+            FTDS::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated (Array)'),
+            FTDS::INPUT_TYPE_MATRIX_OBJECT => $this->_('Matrix, first row as keys (Object)'),
+            FTDS::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated (Array)'),
+            FTDS::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated (Array)'),
+            FTDS::INPUT_TYPE_JSON => $this->_('JSON (Object)'),
         );
     }
 
@@ -164,9 +164,9 @@ class FieldtypeObject extends FieldtypeTextarea {
         $f = $this->modules->get('InputfieldSelect');
         $f->attr('name', 'outputAs');
         $f->attr('value', $this->getValue($field, 'outputAs'));
-        $f->addOption(FTO::OUTPUT_AS_WIRE_DATA, $this->_('WireData/-Array'));
-        $f->addOption(FTO::OUTPUT_AS_OBJECT, $this->_('Object'));
-        $f->addOption(FTO::OUTPUT_AS_ASSOC, $this->_('Associative Array'));
+        $f->addOption(FTDS::OUTPUT_AS_WIRE_DATA, $this->_('WireData/-Array'));
+        $f->addOption(FTDS::OUTPUT_AS_OBJECT, $this->_('Object'));
+        $f->addOption(FTDS::OUTPUT_AS_ASSOC, $this->_('Associative Array'));
         $f->label = $this->_('Output object as');
         $f->icon = 'sign-out';
         $f->description = $this->_(preg_replace("/(\\n|\s)+/", ' ', '
@@ -178,9 +178,9 @@ class FieldtypeObject extends FieldtypeTextarea {
         '));
 
         $f->showIf = $this->showIfList('inputType!=', array(
-            FTO::INPUT_TYPE_MATRIX,
-            FTO::INPUT_TYPE_COMMA_SEPARATED,
-            FTO::INPUT_TYPE_LINE_SEPARATED,
+            FTDS::INPUT_TYPE_MATRIX,
+            FTDS::INPUT_TYPE_COMMA_SEPARATED,
+            FTDS::INPUT_TYPE_LINE_SEPARATED,
         ));
 
         return $f;
@@ -191,7 +191,7 @@ class FieldtypeObject extends FieldtypeTextarea {
     //     $f = $this->modules->get('InputfieldText');
     //     $f->attr('name', 'csvDelimiter');
     //     $f->label = $this->_('CSV delimiter');
-    //     $f->attr('value', !isset($field->csvDelimiter) ? FTO::DEFAULT_CSV_DELIMITER : $field->csvDelimiter);
+    //     $f->attr('value', !isset($field->csvDelimiter) ? FTDS::DEFAULT_CSV_DELIMITER : $field->csvDelimiter);
     //     $f->attr('optionColumns', 1);
     //     $f->icon = 'sign-out';
     //     $f->description = $this->_(implode(' ', array(
@@ -203,9 +203,9 @@ class FieldtypeObject extends FieldtypeTextarea {
     //     )));
 
     //     $f->showIf = $this->showIfList('inputType!=', array(
-    //         FTO::INPUT_TYPE_MATRIX,
-    //         FTO::INPUT_TYPE_COMMA_SEPARATED,
-    //         FTO::INPUT_TYPE_LINE_SEPARATED,
+    //         FTDS::INPUT_TYPE_MATRIX,
+    //         FTDS::INPUT_TYPE_COMMA_SEPARATED,
+    //         FTDS::INPUT_TYPE_LINE_SEPARATED,
     //     ));
 
     //     return $f;
@@ -233,7 +233,7 @@ class FieldtypeObject extends FieldtypeTextarea {
     }
 
 
-    public function getValue(Field $field, $name, $class = '\owzim\FieldtypeObject\FTO') {
+    public function getValue(Field $field, $name, $class = '\owzim\FieldtypeDataStructure\FTDS') {
 
         preg_match_all('/((?:^|[A-Z])[a-z]+)/',$name,$matches);
         $items = $matches[0];

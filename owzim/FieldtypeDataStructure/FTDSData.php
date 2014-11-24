@@ -1,7 +1,7 @@
 <?php
-namespace owzim\FieldtypeObject;
+namespace owzim\FieldtypeDataStructure;
 
-class FTOData extends \WireData {
+class FTDSData extends \WireData {
 
 	public $toStringString = '';
 

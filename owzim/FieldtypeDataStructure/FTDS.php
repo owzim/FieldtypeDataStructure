@@ -1,8 +1,8 @@
 <?php
-namespace owzim\FieldtypeObject;
+namespace owzim\FieldtypeDataStructure;
 
-use \owzim\FieldtypeObject\Vendor\Spyc;
-class FTO {
+use \owzim\FieldtypeDataStructure\Vendor\Spyc;
+class FTDS {
 
     const OUTPUT_AS_ASSOC = 0;
     const OUTPUT_AS_OBJECT = 1;
@@ -84,7 +84,7 @@ class FTO {
      * @return stdClass
      */
     public static function array2wire(array $array) {
-        $resultObj = new FTOData;
+        $resultObj = new FTDSData;
         $resultArr = array();
         $hasIntKeys = false;
         $hasStrKeys = false;
@@ -111,9 +111,9 @@ class FTO {
     }
 
     public static function array2wireExt(array $array) {
-        $resultObj = new FTOData;
+        $resultObj = new FTDSData;
         $resultArr = array();
-        $resultWireArr = new FTOArray;
+        $resultWireArr = new FTDSArray;
         $hasIntKeys = false;
         $hasStrKeys = false;
         $wireArrAllowed = true;

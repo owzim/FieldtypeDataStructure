@@ -1,7 +1,7 @@
 <?php
-namespace owzim\FieldtypeObject;
+namespace owzim\FieldtypeDataStructure;
 
-class FTOArray extends \WireArray {
+class FTDSArray extends \WireArray {
     
     public $toStringString = '';
     
@@ -11,6 +11,6 @@ class FTOArray extends \WireArray {
     }
 
     public function isValidItem($item) {
-    	return $item instanceof FTOData || $item instanceof stdClass;
+    	return $item instanceof FTDSData || $item instanceof stdClass;
     }
 }
