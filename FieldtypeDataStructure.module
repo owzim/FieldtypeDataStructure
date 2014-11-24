@@ -44,6 +44,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         $field->inputType = $this->getValue($field, 'inputType');
         $field->outputAs = $this->getValue($field, 'outputAs');
         $field->fontFamily = $this->getValue($field, 'fontFamily', $this);
+        $field->delimiter = $this->getValue($field, 'delimiter');
         $field->isInit = 1;
         $field->save();
 
@@ -110,6 +111,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         $inputfields = new InputfieldWrapper();
 
         $inputfields->append($this->getConfigInputfieldInputType($field));
+        $inputfields->append($this->getConfigInputfieldDelimiter($field));
         $inputfields->append($this->getConfigInputfieldOutputAs($field));
         $inputfields->append($this->getConfigInputfieldFontFamily($field));
         $inputfields->append($this->getConfigInputfieldInputfieldClass($field));
@@ -136,9 +138,9 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     public function ___getInputTypes() {
         return array(
             FTDS::INPUT_TYPE_YAML => $this->_('YAML (Object)'),
-            FTDS::INPUT_TYPE_MATRIX => $this->_('Matrix, comma and line-break separated (Array)'),
+            FTDS::INPUT_TYPE_MATRIX => $this->_('Matrix, delimiter and line-break separated (Array)'),
             FTDS::INPUT_TYPE_MATRIX_OBJECT => $this->_('Matrix, first row as keys (Object)'),
-            FTDS::INPUT_TYPE_COMMA_SEPARATED => $this->_('Comma separated (Array)'),
+            FTDS::INPUT_TYPE_COMMA_SEPARATED => $this->_('Delimiter separated (Array)'),
             FTDS::INPUT_TYPE_LINE_SEPARATED => $this->_('Line-break separated (Array)'),
             FTDS::INPUT_TYPE_JSON => $this->_('JSON (Object)'),
         );
@@ -156,6 +158,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
         }
         $f->label = $this->_('Input type');
         $f->icon = 'sign-in';
+        // $f->columnWidth = 70;
         return $f;
     }
 
@@ -181,6 +184,25 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
             FTDS::INPUT_TYPE_MATRIX,
             FTDS::INPUT_TYPE_COMMA_SEPARATED,
             FTDS::INPUT_TYPE_LINE_SEPARATED,
+        ));
+
+        return $f;
+    }
+
+
+    public function ___getConfigInputfieldDelimiter(Field $field) {
+
+        $f = $this->modules->get('InputfieldText');
+        $f->attr('name', 'delimiter');
+        $f->attr('value', $this->getValue($field, 'delimiter'));
+        $f->size = 5;
+        $f->label = $this->_('Delimiter');
+        $f->icon = 'arrows-h';
+        // $f->columnWidth = 30;
+        $f->showIf = $this->showIfList('inputType!=', array(
+            FTDS::INPUT_TYPE_YAML,
+            FTDS::INPUT_TYPE_LINE_SEPARATED,
+            FTDS::INPUT_TYPE_JSON,
         ));
 
         return $f;

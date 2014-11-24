@@ -98,6 +98,7 @@ class FieldtypeDataStructureTests extends \TestFest\TestFestSuite {
             $this->assertIdentical($f->inputType, FTDS::DEFAULT_INPUT_TYPE, 'inputType DEFAULT');
             $this->assertIdentical($f->fontFamily, FieldtypeDataStructure::DEFAULT_FONT_FAMILY, 'fontFamily DEFAULT');
             $this->assertIdentical($f->outputAs, FTDS::DEFAULT_OUTPUT_AS, 'outputAs DEFAULT');
+            $this->assertIdentical($f->delimiter, FTDS::DEFAULT_DELIMITER, 'delimiter DEFAULT');
         
         $this->newTest('inputType');
         

@@ -9,6 +9,8 @@ class FTDS {
     const OUTPUT_AS_WIRE_DATA = 2;
     const DEFAULT_OUTPUT_AS = 2;
 
+    const DEFAULT_DELIMITER = ',';
+
     const INPUT_TYPE_YAML = 0;
     const INPUT_TYPE_MATRIX = 1;
     const INPUT_TYPE_COMMA_SEPARATED = 2;

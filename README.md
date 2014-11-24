@@ -74,6 +74,7 @@ echo $out;
 
 ### Change Log
 
+* **0.4.1** make 'delimiter' configurable
 * **0.4.0** rename module to FieldtypeDataStructure
   * **0.3.5** add 'inputType' Matrix Object
   * **0.3.4** add field config values tests
