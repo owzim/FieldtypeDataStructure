@@ -69,6 +69,19 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     }
 
     /**
+     * remove the cached value of a field of a page
+     *
+     * @param  Page   $page
+     * @param  Field  $field
+     */
+    public function uncache(Page $page, Field $field) {
+        $cacheKey = "{$page->id}_{$field->id}";
+        if (isset(self::$parseCache[$cacheKey])) {
+            unset(self::$parseCache[$cacheKey]);
+        }
+    }
+
+    /**
      * hook in here to add additional parsers
      */
     public function ___parseValue(Page $page, Field $field, $value) {
