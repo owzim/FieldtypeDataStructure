@@ -59,7 +59,7 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
     public function getCachedValue(Page $page, Field $field, $value) {
 
         $cacheKey = "{$page->id}_{$field->id}";
-        
+
         // if it's not cached yet, parse, save to cache and return
         if (!isset(self::$parseCache[$cacheKey])) {
             return self::$parseCache[$cacheKey] = $this->parseValue($page, $field, $value);
@@ -122,26 +122,24 @@ class FieldtypeDataStructure extends FieldtypeTextarea {
 
     public function ___getConfigInputfields(Field $field) {
 
-        // $value = $this->getValue('inputType');
-        // $value = $this->getValue('fontFamily', $this);
-
         $inputfields = new InputfieldWrapper();
 
         $inputfields->append($this->getConfigInputfieldInputType($field));
         $inputfields->append($this->getConfigInputfieldDelimiter($field));
         $inputfields->append($this->getConfigInputfieldOutputAs($field));
         $inputfields->append($this->getConfigInputfieldFontFamily($field));
-        $inputfields->append($this->getConfigInputfieldInputfieldClass($field));
+
+        $this->addParentInputfields($field, $inputfields);
 
         return $inputfields;
     }
 
-    public function ___getConfigInputfieldInputfieldClass(Field $field) {
-        $inputfields = parent::___getConfigInputfields($field);
-        foreach ($inputfields as $inputfield) {
-            if ($inputfield->name == 'inputfieldClass') {
-                $inputfield->attr('icon', 'list-alt');
-                return $inputfield;
+    public function ___addParentInputfields(Field $field, InputfieldWrapper $inputfields) {
+        $forbidden = array('textformatters', 'contentType');
+        $parentInputfields = parent::___getConfigInputfields($field);
+        foreach ($parentInputfields as $inputfield) {
+            if (!in_array($inputfield->name, $forbidden))  {
+                $inputfields->append($inputfield);
             }
         }
     }
