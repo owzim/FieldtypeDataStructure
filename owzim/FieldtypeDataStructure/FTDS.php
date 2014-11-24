@@ -81,7 +81,9 @@ class FTDS {
 
     /**
      * convert an assoc array to an object recursively
-     *
+     * 
+     * TODO: make this prettier
+     * 
      * @param  array  $array
      * @return stdClass
      */
@@ -114,46 +116,14 @@ class FTDS {
 
 
     /**
-     * convert an assoc array to WireData/array
-     *
-     * @param  array  $array
-     * @return WireData|array
-     */
-    public static function array2wire(array $array) {
-        $resultObj = new FTDSData;
-        $resultArr = array();
-        $hasIntKeys = false;
-        $hasStrKeys = false;
-        foreach ($array as $key => $value) {
-            if (!$hasIntKeys) {
-                $hasIntKeys = is_int($key);
-            }
-            if (!$hasStrKeys) {
-                $hasStrKeys = is_string($key);
-            }
-            if ($hasIntKeys && $hasStrKeys) {
-                $e = new \Exception(
-                    'Current level has both int and str keys, thus it\'s impossible to keep arr or convert to obj');
-                $e->vars = array('level' => $array);
-                throw $e;
-            }
-            if ($hasStrKeys) {
-                $resultObj->{$key} = is_array($value) ? self::array2wire($value) : $value;
-            } else {
-                $resultArr[$key] = is_array($value) ? self::array2wire($value) : $value;
-            }
-        }
-        return ($hasStrKeys) ? $resultObj : $resultArr;
-    }
-
-
-    /**
      * convert an assoc array to a WireData/WireArray structure
-     *
+     * 
+     * TODO: make this prettier
+     * 
      * @param  array  $array
      * @return WireData|WireArray
      */
-    public static function array2wireExt(array $array) {
+    public static function array2wire(array $array) {
         $resultObj = new FTDSData;
         $resultArr = array();
         $resultWireArr = new FTDSArray;
@@ -174,9 +144,9 @@ class FTDS {
                 throw $e;
             }
             if ($hasStrKeys) {
-                $resultObj->{$key} = is_array($value) || is_object($value) ? self::array2wireExt($value) : $value;
+                $resultObj->{$key} = is_array($value) || is_object($value) ? self::array2wire($value) : $value;
             } else {
-                $result = is_array($value) || is_object($value) ? self::array2wireExt($value) : $value;
+                $result = is_array($value) || is_object($value) ? self::array2wire($value) : $value;
                 if ($wireArrAllowed && is_object($result)) {
                     $resultWireArr->add($result);
                 } else {
@@ -202,29 +172,29 @@ class FTDS {
 
         switch (true) {
             case $options->inputType === self::INPUT_TYPE_YAML:
-                $string = Spyc::YAMLLoadString($string);
+                $value = Spyc::YAMLLoadString($string);
                 break;
             case $options->inputType === self::INPUT_TYPE_MATRIX:
-                $string = self::parseMatrix($string, $options->delimiter);
+                $value = self::parseMatrix($string, $options->delimiter);
                 break;
             case $options->inputType === self::INPUT_TYPE_MATRIX_OBJECT:
-                $string = self::parseMatrixObject($string, $options->delimiter);
+                $value = self::parseMatrixObject($string, $options->delimiter);
                 break;
             case $options->inputType === self::INPUT_TYPE_DELIMITER_SEPARATED:
-                $string = self::explodeAndTrim($string, $options->delimiter);
+                $value = self::explodeAndTrim($string, $options->delimiter);
                 break;
             case $options->inputType === self::INPUT_TYPE_LINE_SEPARATED:
-                $string = self::explodeAndTrim($string, self::DEFAULT_NEW_LINE_DELIMITER);
+                $value = self::explodeAndTrim($string, self::DEFAULT_NEW_LINE_DELIMITER);
                 break;
             case $options->inputType === self::INPUT_TYPE_JSON:
-                $string = json_decode($string);
+                $value = json_decode($string);
                 break;
             default:
                 return $string;
                 break;
         }
 
-        return self::convert($string, $options->outputAs, $options->toStringString);
+        return self::convert($value, $options->outputAs, $options->toStringString);
     }
 
 
@@ -256,7 +226,7 @@ class FTDS {
 
             case $outputAs === self::OUTPUT_AS_WIRE_DATA:
                 if(!is_array($value)) return $value;
-                $wire = self::array2wireExt($value);
+                $wire = self::array2wire($value);
                 if (!is_array($wire)) {
                     $wire->toStringString = $toStringString;
                 }
